@@ -1,0 +1,11 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env" // 常用的解析ES6方法都在preset-env里面（只解析语法）
+      // {
+      //   "useBuiltIns": "usage", // 设置按需引入对应的core-js
+      //   "corejs": 3 // 版本3
+      // }
+    ]
+  ]
+}
