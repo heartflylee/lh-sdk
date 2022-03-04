@@ -1,16 +1,27 @@
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-*.code-workspace
-
-# Local History for Visual Studio Code
-.history/
-
-node_modules/
-
-dist/
-
+.DS_Store
+/node_modules
+/dist
+# 构建分析输出文件
+compilation-stats.json
+output.js
+# 外网不用锁定版本
+package-lock.json
 yarn.lock
-package.lock
+dist.js
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.history
+*.log

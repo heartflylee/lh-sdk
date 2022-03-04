@@ -1,6 +1,7 @@
 import { setCookie, getCookie } from './utils/tools';
 
 import { facility, browser } from './browser';
+import Popup from './popup/index';
 
 function app() {
   setCookie('user', 'user-cookie');
@@ -9,3 +10,11 @@ function app() {
 }
 
 app();
+
+
+let popup = new Popup({
+  cancelCallback: (a: any) => {
+    console.log(a);
+  }
+});
+

@@ -1,37 +1,72 @@
 const path = require('path');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
-  entry: './src/app.ts',
+  entry: './src/main.ts',
   output: {
-    path: path.resolve(__dirname, 'dist/js'),
+    path: path.join(__dirname, './dist'),
     filename: 'bundle.js'
+  },
+  devServer: {
+    hot: true,
+    filename: 'bundle.js',
+    contentBase: path.join(__dirname, 'src')
   },
   module: {
     rules: [
       {
-        test: /\.ts(x?)$/,
-        loader: 'ts-loader',
-        exclude: /node_modules/
+        test: /\.(scss|css)$/,
+        use: [
+          { loader: 'style-loader' },
+          {
+            loader: 'css-loader'
+          },
+          { loader: 'sass-loader'}
+        ]
+      
+      },
+      {
+        test: /\.(ts|tsx)?$/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                '@babel/preset-env',
+                [
+                  '@babel/preset-react',
+                  {
+                    pragma: 'createElement'
+                  }
+                ]
+              ]
+            }
+          },
+          {
+            loader: 'ts-loader'
+          }
+        ]
+      },
+      {
+        test: /\.(js|jsx)?$/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-env'],
+              plugins: [
+                ['@babel/plugin-transform-react-jsx',
+                  {
+                    pragma: 'createElement'
+                  }                  
+                ]
+              ]
+            }
+          }
+        ]
       }
-      // {
-      //   test: /\.ts(x?)$/,
-      //   loader: 'babel-loader',
-      //   exclude: /node_modules/
-      // }
     ]
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js']
-  },
-  optimization: {
-    minimizer: [
-      new UglifyJsPlugin({
-        uglifyOptions: {
-          compress: false,
-          test: /\.ts(\?.*)?$/i
-        }
-      })
-    ]
+    extensions: ['.js', '.ts', '.jsx', '.tsx']
   }
-};
+}
