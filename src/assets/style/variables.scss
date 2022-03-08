@@ -1,0 +1,17 @@
+/* 基本
+********************************************************************************************** */
+$--primary-color: #05aeed; // 主题颜色
+$--primary-color-text: rgba(255, 255, 255, 1); // 字体颜色 文本
+$--primary-color-label: rgba(255, 255, 255, 0.55); // 字体颜色 标签
+
+
+// 边框
+$--form-border-color: #6a727f; // 表单组件(input,select) 边框颜色
+$--divider-border-color: #626e7f; // 内容区域 分割边框颜色
+$--transparent-border-color: transparent; // 无边框
+$--button-border-color: #ffffff;
+
+// 展开内容 (select,input,cascader,date,tooltip)
+$--expanded-bg-color: #1e2c3d; // 展开内容 背景颜色
+$--expanded-border-color: #142336; // 展开内容 边框颜色
+$--expanded-shadow-color: #000000; // 展开内容 阴影颜色

@@ -1,0 +1,67 @@
+
+// 文字提示
+@import "./variables.scss";
+
+
+$--popover-font-color: $--primary-color-text !default; // 字体
+$--popover-bg-color: $--expanded-bg-color !default; // 背景
+$--popover-border-color: $--expanded-border-color !default; // 边框
+$--popover-shadow-color: $--expanded-shadow-color !default; // 阴影
+
+.lh-popup {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+  color: #333;
+  font: 1rem "Microsoft YaHei";
+  &-bottom{
+    margin-top: 1rem;
+  }
+}
+
+.lh-shadow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, .3);
+}
+
+.lh-container {
+  width: 75%;
+  height: auto;
+  padding: 1rem;
+  position: absolute;
+  background: #fff;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+  color: #444;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.lh-header{
+  position: relative;
+  min-height: 2rem;
+}
+.lh-close-btn{
+  position: absolute;
+  top:0;
+  right: 0;
+  font-size: 2rem;
+  line-height: 1;
+  color: #999;
+}
+
+.alert-container, .error-container{
+  text-align: center;
+}
+.error-container{
+  color: rgb(236, 51, 51);
+}

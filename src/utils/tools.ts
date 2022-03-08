@@ -13,87 +13,84 @@ export function getCookie(name: string) {
   else return null;
 }
 
-// 合并
-export function add(a: number, b: number) {
-  return new Promise((resolve) => {
-    resolve(a + b);
-  });
+
+/**
+ * @desc 函数防抖
+ * @param func 函数
+ * @param wait 延迟执行毫秒数
+ * @param immediate true 表立即执行，false 表非立即执行
+ */
+ export function debounce(func: Function, wait?: number, immediate?: boolean) {
+  let timeout: any;
+
+  return function(...params: any) {
+    let args = params;
+    if (timeout) clearTimeout(timeout);
+    if (immediate) {
+      let callNow = !timeout;
+      timeout = setTimeout(() => {
+        timeout = null;
+      }, wait);
+      if (callNow) func.apply(this, args);
+    } else {
+      timeout = setTimeout(function() {
+        func.apply(this, args);
+      }, wait);
+    }
+  };
 }
+/**
+ * @desc 函数节流
+ * @param func throttle
+ * @param delay 延迟执行毫秒数，默认 1000ms
+ */
+export const throttle = function(func: Function, delay?: number) {
+  let timer: any = null;
+  return function() {
+    /* eslint-disable-next-line */
+    let context = this;
+    let args = arguments;
+    if (!timer) {
+      timer = setTimeout(function() {
+        func.apply(context, args);
+        timer = null;
+      }, delay);
+    }
+  };
+};
+// 对函数进行 节流
+export const throttleOther = function(fn: Function, delay = 5000, clearFn: Function) {
+  let timer: any = null;
+  let patrolTimer: any = null; //巡查timer
+  let firstTime = true;
 
-
-// export function createElement(tag, attributes, ...children) {
-//   let element;
-
-//   //创建元素，区分普通元素和自定义元素
-//   //如果为自定义元素Tag将为对应的类
-//   if (typeof tag === 'string') {
-//     element = new RegularNode(tag);
-//   } else {
-//     element = new tag();
-//   }
-
-//   //元素属性处理
-//   if (attributes) {
-//     for (let key in attributes) {
-//       element.setAttribute(key, attributes[key]);
-//     }
-//   }
-
-//   //对子元素处理
-//   if (children) {
-//     for (let child of children) {
-//       //如果子元素为文本，则创建文本节点；
-//       if (typeof child === 'string') {
-//         child = new TextNode(child);
-//       }
-//       element.appendChild(child);
-//     }
-//   }
-//   //返回的是最后的Dom树
-//   console.log(element);
-//   return element;
-// } 
-
-
-// /** 创建常规元素 */
-// class RegularNode {
-//   public node: any;
-//   //初始化创建元素
-//   constructor(tag) {
-//     this.node = document.createElement(tag);
-//   }
-
-//   //设置元素的属性
-//   setAttribute(name, attribute) {
-//     this.node.setAttribute(name, attribute);
-//   }
-
-//   //挂载子元素
-//   appendChild(child) {
-//     child.mountTo(this.node);
-//   }
-
-//   //将元素挂载到指定元素
-//   mountTo(parent) {
-//     parent.appendChild(this.node);
-//   }
-// }
-
-// /** 创建文本元素 */
-// class TextNode {
-//   public node: any;
-//   constructor(text) {
-//     this.node = document.createTextNode(text);
-//   }
-
-//   setAttribute(name, attribute) {
-//     this.node.setAttribute(name, attribute);
-//   }
-
-//   appendChild(child) {
-//     child.mountTo(this.node);
-//   }
-//   mountTo(parent) {
-//     parent.appendChild(this.node);
-//   }
-// }
+  return function() {
+    let args = arguments;
+    if (firstTime) {
+      // 第一次加载
+      fn.apply(this, args);
+      firstTime = false;
+      return;
+    }
+    if (timer) {
+      // 定时器正在执行中，跳过
+      return;
+    }
+    timer = setTimeout(() => {
+      clearTimeout(timer);
+      timer = null;
+      fn.apply(this, args);
+    }, delay);
+    // delay + 1s之后巡查是否还有定时任务待执行，如果没有 下次又是新的一轮
+    patrolTimer = setTimeout(() => {
+      clearTimeout(patrolTimer);
+      if (!timer) {
+        firstTime = true;
+        let tempTimer = setTimeout(() => {
+          clearTimeout(tempTimer);
+          clearFn.apply(this, args);
+        }, delay - 1100);
+      }
+    }, delay + 100);
+  };
+};

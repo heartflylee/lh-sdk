@@ -1,0 +1,20 @@
+
+// 文字提示
+@import "./variables.scss";
+
+
+.lh-button{
+  box-sizing: border-box;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+  border-color: #666;
+  background: #fff;
+  color: #000;
+  font-size: 1rem;
+  &.primary{
+    border-color:  $--button-border-color;
+    background: $--primary-color;
+    color: $--primary-color-text;
+  }
+}

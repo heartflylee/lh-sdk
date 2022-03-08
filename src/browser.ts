@@ -1,5 +1,5 @@
 interface Browser {
-  mobile: boolean | number;
+  mobile: boolean;
   ios: boolean;
   android: boolean;
   iPad: boolean;
