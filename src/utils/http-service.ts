@@ -3,7 +3,7 @@
  */
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { getChannel, getSessionTimeOut, getToken } from './storage';
-import { Error } from '../popup';
+import { Toast } from '../popup';
 // import { SysStore } from '@/store/modules/public/system-store';
 // import { TagsViewStore } from '@/store/modules/public/tags-view';
 
@@ -33,6 +33,9 @@ const removePending = (ever: any) => {
   }
 };
 
+
+const toast = new Toast();
+
 /**
  * 创建文件下载的DOM结构
  * @param response
@@ -57,7 +60,7 @@ const removePending = (ever: any) => {
 //  }
 const messageError = (message: string) => {
   // new Toast({ type: 'error', message }) 
-  new Error(message || '')
+  toast.error(message || '')
 
   //  Vue.prototype.$toast.error(message);
 };
@@ -142,7 +145,7 @@ class UAxios {
       (err: AxiosError) => {
         //  Vue.prototype.$toast.error(err);
         //  new Toast({type:'error', message: err.message})
-        new Error(err.message || '')
+        toast.error(err.message || '')
         Promise.reject(err);
       }
     );
@@ -199,7 +202,7 @@ class UAxios {
                 // 返回404 跳转到404页面 或者 跳转到登录页面
                 //  Vue.prototype.$toast.error('接口不存在');
                 //  new Toast({type:'error', message:'接口不存在'})
-                new Error('接口不存在');
+                toast.error('接口不存在');
               // router.replace({
               //   path: '/404'
               // });

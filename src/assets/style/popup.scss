@@ -1,4 +1,3 @@
-
 // 文字提示
 @import "./variables.scss";
 
@@ -17,7 +16,8 @@ $--popover-shadow-color: $--expanded-shadow-color !default; // 阴影
   z-index: 100;
   color: #333;
   font: 1rem "Microsoft YaHei";
-  &-bottom{
+
+  &-bottom {
     margin-top: 1rem;
   }
 }
@@ -46,22 +46,31 @@ $--popover-shadow-color: $--expanded-shadow-color !default; // 阴影
   overflow: hidden;
 }
 
-.lh-header{
+.lh-header {
   position: relative;
   min-height: 2rem;
 }
-.lh-close-btn{
+
+.lh-close-btn {
   position: absolute;
-  top:0;
+  top: 0;
   right: 0;
   font-size: 2rem;
   line-height: 1;
   color: #999;
 }
 
-.alert-container, .error-container{
+.alert-container,
+.error-container,
+.success-container {
   text-align: center;
+  word-break: break-all;
 }
-.error-container{
+
+.error-container {
   color: rgb(236, 51, 51);
+}
+
+.success-container {
+  color: rgb(80, 245, 74);
 }

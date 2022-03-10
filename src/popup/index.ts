@@ -41,15 +41,17 @@ export class Popup {
   createDom(content: any = '') {
     let options = this.options;
     let dom = `<div class="lh-shadow"></div>
-    <div class="lh-container lh-popup-box ${this.options.className}" style="width:${this.options.width};">
+    <div class="lh-container lh-popup-box ${options.className}" style="width:${options.width};">
       ${options.title || options.closeBtn ?
         `<div class="lh-header">${options.title}<a class="lh-close-btn" herf="javascript:;">&times;</a></div>`
         : ''}
       ${content}
-      <div class="lh-popup-bottom">
+      ${options.cancelBtn || options.confirmBtn ?
+        `<div class="lh-popup-bottom">
         ${options.cancelBtn ? `<button class="lh-button cancelBtn">${options.cancelCtx}</button>` : ''}
         ${options.confirmBtn ? `<button class="lh-button primary confirmBtn">${options.confirmCtx}</button>` : ''}
-      </div>
+      </div>`: ''
+      }      
     </div>`
     this.container = document.createElement('div');
     this.container.className = 'lh-popup';
@@ -57,10 +59,10 @@ export class Popup {
     this.container.innerHTML = dom;
     document.body.appendChild(this.container);
     this.initEvent();
-    if (this.options.timeout) {
+    if (options.timeout) {
       this.timeout = setTimeout(() => {
         this.removeDom();
-      }, this.options.timeout)
+      }, options.timeout)
     }
   }
 
@@ -74,13 +76,13 @@ export class Popup {
 
   // 取消操作
   cancelEvent() {
-    this.options.cancelCallback && this.options.cancelCallback();
+    this.options?.cancelCallback();
     this.removeDom();
   }
 
   // 确认事件
   confirmEvent() {
-    this.options?.confirmCallback && this.options.confirmCallback();
+    this.options?.confirmCallback();
     this.removeDom();
   }
 
@@ -100,7 +102,7 @@ export class Popup {
 
     // shadow按钮
     const shadowBox = this.container.querySelector('.lh-shadow');
-    this.options.shadowClick && shadowBox && shadowBox.addEventListener('click', () => { this.shadowEvent() })
+    this.options?.shadowClick && shadowBox && shadowBox.addEventListener('click', () => { this.shadowEvent() })
 
   }
   // 移除事件
@@ -118,56 +120,37 @@ export class Popup {
 }
 
 
-export class Toast extends Popup {
+export class Toast {
   public configOptions: any;
   // public timeOut: number;
-  constructor(opt) {
+  constructor(opt = {}) {
     let defaultOptions = {
       type: '',
       width: '50%', // 弹框宽度
-      title: '提示', // 弹框 title
-      timeout: 35 * 1000, // 自动关闭
+      title: '', // 弹框 title
+      timeout: 5 * 1000, // 自动关闭
     }
-    super(Object.assign({}, defaultOptions, opt));
-    this.configOptions = Object.assign({}, this.options, defaultOptions, opt)
-
-    // // this.options = options;
-    // this.createDom('123123');
-    // // 自动关闭
-    // this.timeOut = this.configOptions.timeout && setTimeout(() => {
-    //   // this.removeDom();
-    // }, this.configOptions.timeout);
+    // super(Object.assign({}, defaultOptions, opt));
+    this.configOptions = Object.assign({}, defaultOptions, opt)
   }
+
+  alert(msg) {
+    new Popup(Object.assign({}, this.configOptions,
+      { className: 'alert-container', timeout: 0 })).createDom(msg);
+  }
+
+  success(msg) {
+    new Popup(Object.assign({}, this.configOptions,
+      { className: 'success-container', confirmBtn: false })).createDom(msg);
+  }
+
+  error(msg) {
+    new Popup(Object.assign({}, this.configOptions,
+      { className: 'error-container', confirmBtn: false })).createDom(msg);
+  }
+
+
 }
 
 
-// Alert
-export class Alert extends Popup {
-  constructor(msg) {
-    const option = {
-      type: '',
-      width: '50%',
-      className: 'alert-container',
-    }
-    super(option)
-
-    this.createDom(msg);
-  }
-}
-
-// Error
-export class Error extends Popup {
-  constructor(msg) {
-    const option = {
-      type: '',
-      width: '50%',
-      className: 'error-container',
-      timeout: 5 * 1000
-    }
-    super(option)
-
-    this.createDom(msg);
-  }
-}
-
-export default { Popup, Alert, Toast };
+export default { Popup, Toast };

@@ -20,10 +20,10 @@ export function getCookie(name: string) {
  * @param wait 延迟执行毫秒数
  * @param immediate true 表立即执行，false 表非立即执行
  */
- export function debounce(func: Function, wait?: number, immediate?: boolean) {
+export function debounce(func: Function, wait?: number, immediate?: boolean) {
   let timeout: any;
 
-  return function(...params: any) {
+  return function (...params: any) {
     let args = params;
     if (timeout) clearTimeout(timeout);
     if (immediate) {
@@ -33,7 +33,7 @@ export function getCookie(name: string) {
       }, wait);
       if (callNow) func.apply(this, args);
     } else {
-      timeout = setTimeout(function() {
+      timeout = setTimeout(function () {
         func.apply(this, args);
       }, wait);
     }
@@ -44,14 +44,14 @@ export function getCookie(name: string) {
  * @param func throttle
  * @param delay 延迟执行毫秒数，默认 1000ms
  */
-export const throttle = function(func: Function, delay?: number) {
+export const throttle = function (func: Function, delay?: number) {
   let timer: any = null;
-  return function() {
+  return function () {
     /* eslint-disable-next-line */
     let context = this;
     let args = arguments;
     if (!timer) {
-      timer = setTimeout(function() {
+      timer = setTimeout(function () {
         func.apply(context, args);
         timer = null;
       }, delay);
@@ -59,12 +59,12 @@ export const throttle = function(func: Function, delay?: number) {
   };
 };
 // 对函数进行 节流
-export const throttleOther = function(fn: Function, delay = 5000, clearFn: Function) {
+export const throttleOther = function (fn: Function, delay = 5000, clearFn: Function) {
   let timer: any = null;
   let patrolTimer: any = null; //巡查timer
   let firstTime = true;
 
-  return function() {
+  return function () {
     let args = arguments;
     if (firstTime) {
       // 第一次加载
@@ -93,4 +93,51 @@ export const throttleOther = function(fn: Function, delay = 5000, clearFn: Funct
       }
     }, delay + 100);
   };
+};
+
+// 获取地址栏参数
+export const getParamsByName = (name, url) => {
+  url = url ? url : self.window.document.location.href;
+  var start = url.indexOf(name + '=');
+  if (start == -1) return '';
+  var len = start + name.length + 1;
+  var end = url.indexOf('&', len);
+  if (end == -1) end = url.length;
+  return url.substring(len, end);
+}
+/**
+ * 获取地址栏参数
+ * @param variable
+ * @returns
+ */
+export function getQueryVariable(variable: string) {
+  let query = window.location.search.substring(1);
+  let vars = query.split('&');
+  for (let i = 0; i < vars.length; i++) {
+    let pair = vars[i].split('=');
+    if (pair[0] === variable) {
+      return pair[1];
+    }
+  }
+  return false;
+}
+
+
+// 根据prop获取object上的属性，支持 obj.name.test
+export const getValueByPath = function(object: Record<string, any>, prop: string) {
+  prop = prop || '';
+  const paths = prop.split('.');
+  let current = object;
+  let result = null;
+  for (let i = 0, j = paths.length; i < j; i++) {
+    const path = paths[i];
+    if (!current) current = {};
+
+    if (i === j - 1) {
+      result = current[path];
+      break;
+    }
+    current = current[path];
+  }
+  return result;
 };
