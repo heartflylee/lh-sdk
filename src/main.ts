@@ -151,6 +151,11 @@ class LhSdk {
     }
 
   }
+
+  // 实名认证
+  identity() {
+    window.parent.postMessage({type:'login'})
+  }
 }
 
 (window as any).lhsdk = new LhSdk();
