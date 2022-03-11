@@ -2,16 +2,16 @@
 import '../assets/style/popup.scss';
 
 export class Popup {
-  public screenWidth: number;
-  public screenHeight: number;
+  // public screenWidth: number;
+  // public screenHeight: number;
   public container: any;
   public options: any;
 
   public timeout: any;
 
   constructor(opt: any) {
-    this.screenWidth = document.documentElement.clientWidth;
-    this.screenHeight = document.documentElement.clientHeight;
+    // this.screenWidth = document.documentElement.clientWidth;
+    // this.screenHeight = document.documentElement.clientHeight;
     this.container = document.createElement('div');
 
     let defultOptions = {
@@ -48,10 +48,11 @@ export class Popup {
       ${content}
       ${options.cancelBtn || options.confirmBtn ?
         `<div class="lh-popup-bottom">
-        ${options.cancelBtn ? `<button class="lh-button cancelBtn">${options.cancelCtx}</button>` : ''}
-        ${options.confirmBtn ? `<button class="lh-button primary confirmBtn">${options.confirmCtx}</button>` : ''}
-      </div>`: ''
-      }      
+          ${options.cancelBtn ? `<button class="lh-button cancelBtn">${options.cancelCtx}</button>` : ''}
+          ${options.confirmBtn ? `<button class="lh-button primary confirmBtn">${options.confirmCtx}</button>` : ''}
+        </div>`
+        : ''
+      }
     </div>`
     this.container = document.createElement('div');
     this.container.className = 'lh-popup';
@@ -135,21 +136,31 @@ export class Toast {
   }
 
   alert(msg) {
-    new Popup(Object.assign({}, this.configOptions,
-      { className: 'alert-container', timeout: 0 })).createDom(msg);
+    new Popup(Object.assign({},
+      this.configOptions,
+      {
+        className: 'alert-container',
+        timeout: 0
+      })).createDom(msg);
   }
 
   success(msg) {
-    new Popup(Object.assign({}, this.configOptions,
-      { className: 'success-container', confirmBtn: false })).createDom(msg);
+    new Popup(Object.assign({},
+      this.configOptions,
+      {
+        className: 'success-container',
+        confirmBtn: false
+      })).createDom(msg);
   }
 
   error(msg) {
-    new Popup(Object.assign({}, this.configOptions,
-      { className: 'error-container', confirmBtn: false })).createDom(msg);
+    new Popup(Object.assign({},
+      this.configOptions,
+      {
+        className: 'error-container',
+        confirmBtn: false
+      })).createDom(msg);
   }
-
-
 }
 
 
