@@ -1,5 +1,7 @@
 
-import { jsonp } from "@/utils/jsonp";
+// import { jsonp } from "@/utils/jsonp";
+import axios from "axios";
+import jsonpAdapter from 'axios-jsonp';
 
 
 function setCookie(name, value) {
@@ -393,37 +395,44 @@ let WJSOpenSDK_toLogin = (appid) => {
  * @constructor
  */
 let WJSOpenSDK_userToken = (config, callback) => {
-jsonp(facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?_platform=ios&app_id=" + config.app_id : "https://pl.zhibo8.cc/game/get_token.php?app_id=" + config.app_id, {}).then((data:any) => {
 
-// })
-//     ajax({
-//         url: facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?_platform=ios&app_id=" + config.app_id : "https://pl.zhibo8.cc/game/get_token.php?app_id=" + config.app_id,
-//         type: "GET",
-//         dataType: "jsonp",
-//         success: function (data) {
-            if (data['status'] == 'success') {
-                if (data['data']['first_visit']) {
+    
+    axios({
+        url: facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?_platform=ios&app_id=" + config.app_id : "https://pl.zhibo8.cc/game/get_token.php?app_id=" + config.app_id,
+        adapter: jsonpAdapter,
+    })
+    .then((data: any) => {
+
+        // })
+        //     ajax({
+        //         url: facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?_platform=ios&app_id=" + config.app_id : "https://pl.zhibo8.cc/game/get_token.php?app_id=" + config.app_id,
+        //         type: "GET",
+        //         dataType: "jsonp",
+        //         success: function (data) {
+
+        if (data['status'] == 'success') {
+            if (data['data']['first_visit']) {
+                try {
+                    // ios
+                    (window as any).webkit.messageHandlers.Zhibo8WebExitText.postMessage({ msg: '“王者NBA”可以点击主页顶部头像在“发现”频道中再次访问。', btn: '知道了' });
+                    // localStorage.setItem('firstExitZhibo8Game', '1');
+                    // setCookie('firstExitZhibo8Game', '1')
+                } catch (e) {
                     try {
-                        // ios
-                        (window as any).webkit.messageHandlers.Zhibo8WebExitText.postMessage({ msg: '“王者NBA”可以点击主页顶部头像在“发现”频道中再次访问。', btn: '知道了' });
+                        // 安卓
+                        (window as any).zhibo8Act.exitText('知道了', '“王者NBA”可以点击主页顶部头像在“发现”频道中再次访问。');
                         // localStorage.setItem('firstExitZhibo8Game', '1');
                         // setCookie('firstExitZhibo8Game', '1')
                     } catch (e) {
-                        try {
-                            // 安卓
-                            (window as any).zhibo8Act.exitText('知道了', '“王者NBA”可以点击主页顶部头像在“发现”频道中再次访问。');
-                            // localStorage.setItem('firstExitZhibo8Game', '1');
-                            // setCookie('firstExitZhibo8Game', '1')
-                        } catch (e) {
-                            console.warn(e);
-                        }
+                        console.warn(e);
                     }
                 }
-                callback(data['data']['token']);
-            } else {
-                WJSOpenSDK_toLogin(config.app_id);//未登陆获取token失败，调起登陆页面
             }
-        
+            callback(data['data']['token']);
+        } else {
+            WJSOpenSDK_toLogin(config.app_id);//未登陆获取token失败，调起登陆页面
+        }
+
     });
 }
 
@@ -453,28 +462,43 @@ function WJSOpenSDK_deductMoney(config, callback) {
             } else {
                 getZhibo8Token(config.app_id, function (token, native_pay) {
                     config.token = token;
-                    jsonp(facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/payable?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/payable",{ token: config.token, price: config.price, app_id: config.app_id }).then((data:any) => {
+               
+                    axios({
+                        url: facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/payable?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/payable", 
+                        params:{ token: config.token, price: config.price, app_id: config.app_id },
+                        adapter: jsonpAdapter,
+                    })
+                    .then((data: any) => {
 
-                    // })
-                    // $.ajax({
-                    //     url: facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/payable?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/payable",
-                    //     type: "GET",
-                    //     data: { token: config.token, price: config.price, app_id: config.app_id },
-                    //     dataType: "jsonp",
-                    //     success: function (data) {
-                            permitToDeductMoney = true;
-                            if (data['status'] == 'success') {
-                                if (data['data']['payable'] == true) {
-                                    zhibo8Toast({
-                                        zIndex: 110,  //弹窗层级
-                                        width: '75%',  //弹窗默认宽度
-                                        title: '\u5427\u5e01\u5145\u8db3\uff0c\u662f\u5426\u7acb\u5373\u8d2d\u4e70',  //弹窗title
-                                        content: '',  //消息内容
-                                        cancelBtn: true,
-                                        confirmCallback: function () {
-                                            getZhibo8Token(config.app_id, function (token) {
-                                                config.token = token;
-                                                jsonp(facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/buy?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/buy",{ token: config.token, price: config.price, out_trade_no: config.out_trade_no, app_id: config.app_id },).then((data:any) => {
+                        // })
+                        // $.ajax({
+                        //     url: facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/payable?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/payable",
+                        //     type: "GET",
+                        //     data: { token: config.token, price: config.price, app_id: config.app_id },
+                        //     dataType: "jsonp",
+                        //     success: function (data) {
+                        permitToDeductMoney = true;
+                        if (data['status'] == 'success') {
+                            if (data['data']['payable'] == true) {
+                                zhibo8Toast({
+                                    zIndex: 110,  //弹窗层级
+                                    width: '75%',  //弹窗默认宽度
+                                    title: '\u5427\u5e01\u5145\u8db3\uff0c\u662f\u5426\u7acb\u5373\u8d2d\u4e70',  //弹窗title
+                                    content: '',  //消息内容
+                                    cancelBtn: true,
+                                    confirmCallback: function () {
+                                        getZhibo8Token(config.app_id, function (token) {
+                                            config.token = token;
+                                            // jsonp(
+                                            //     facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/buy?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/buy", 
+                                            //     { token: config.token, price: config.price, out_trade_no: config.out_trade_no, app_id: config.app_id },)
+                                                
+                                                axios({
+                                                    url: facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/buy?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/buy", 
+                                                    params:{ token: config.token, price: config.price, out_trade_no: config.out_trade_no, app_id: config.app_id },
+                                                    adapter: jsonpAdapter,
+                                                })
+                                                .then((data: any) => {
 
                                                 // })
                                                 // $.ajax({
@@ -483,73 +507,75 @@ function WJSOpenSDK_deductMoney(config, callback) {
                                                 //     data: { token: config.token, price: config.price, out_trade_no: config.out_trade_no, app_id: config.app_id },
                                                 //     dataType: "jsonp",
                                                 //     success: function (data) {
-                                                        if (data['status'] == 'success') {
-                                                            callback();
-                                                        }
-                                                    // }
-                                                });
-                                            })
+                                                if (data['status'] == 'success') {
+                                                    callback();
+                                                }
+                                                // }
+                                            });
+                                        })
 
 
-                                        },
-                                    });
-                                } else {
-                                    zhibo8Toast({
-                                        zIndex: 110,  //弹窗层级
-                                        width: '75%',  //弹窗默认宽度
-                                        title: '\u5427\u5e01\u4e0d\u8db3\uff0c\u662f\u5426\u5145\u503c',  //弹窗title
-                                        content: '',  //消息内容
-                                        // timeout: 0,   //自动关闭时长毫秒，为0时，不自动关闭，默认0
-                                        // shadowClick: false,  //是否允许点击遮罩关闭，默认false
-                                        cancelBtn: true,
-                                        // cancelCallback: function() {
-                                        //     console.log(321)
-                                        // },
-                                        confirmCallback: function () {
-                                            var paramsObj = { appid: config.app_id, redirect_url: '', js_callback: '' };
-                                            if (config.url) {
-                                                paramsObj.redirect_url = config.url;
-                                            } else {
-                                                paramsObj.js_callback = 'zhibo8PayCallbackMethod()';
-                                            }
-                                            var paramsStr = JSON.stringify(paramsObj)
-
-                                            var zb8pos = WJSOpenSDK_getUrl('zb8pos');
-                                            if (zb8pos == 'splash') {
-                                                WJSOpenSDK_toPay(config);
-                                                return;
-                                            }
-                                            switch (facility) {
-                                                case 'ios':
-                                                    try {
-                                                        (window as any).webkit?.messageHandlers?.Zhibo8PayAction?.postMessage(paramsObj);
-                                                    } catch (e) {
-                                                        // WJSOpenSDK_toPay(config);
-                                                        zhibo8Toast({ title: '充值异常' });
-                                                    }
-                                                    break;
-                                                case 'android':
-                                                case 'other':
-                                                default:
-                                                    try {
-                                                        (window as any).zhibo8Act?.payAction(paramsStr);
-                                                    } catch (e) {
-                                                        if (native_pay) {
-                                                            (window as any).zhibo8Act?.act("pay", paramsStr);
-                                                        } else {
-                                                            WJSOpenSDK_toPay(config)
-                                                        }
-                                                    }
-                                                    break;
-                                            }
+                                    },
+                                });
+                            } else {
+                                zhibo8Toast({
+                                    zIndex: 110,  //弹窗层级
+                                    width: '75%',  //弹窗默认宽度
+                                    title: '\u5427\u5e01\u4e0d\u8db3\uff0c\u662f\u5426\u5145\u503c',  //弹窗title
+                                    content: '',  //消息内容
+                                    // timeout: 0,   //自动关闭时长毫秒，为0时，不自动关闭，默认0
+                                    // shadowClick: false,  //是否允许点击遮罩关闭，默认false
+                                    cancelBtn: true,
+                                    // cancelCallback: function() {
+                                    //     console.log(321)
+                                    // },
+                                    confirmCallback: function () {
+                                        var paramsObj = { appid: config.app_id, redirect_url: '', js_callback: '' };
+                                        if (config.url) {
+                                            paramsObj.redirect_url = config.url;
+                                        } else {
+                                            paramsObj.js_callback = 'zhibo8PayCallbackMethod()';
                                         }
-                                    });
-                                }
+                                        var paramsStr = JSON.stringify(paramsObj)
+
+                                        var zb8pos = WJSOpenSDK_getUrl('zb8pos');
+                                        if (zb8pos == 'splash') {
+                                            WJSOpenSDK_toPay(config);
+                                            return;
+                                        }
+                                        switch (facility) {
+                                            case 'ios':
+                                                try {
+                                                    (window as any).webkit?.messageHandlers?.Zhibo8PayAction?.postMessage(paramsObj);
+                                                } catch (e) {
+                                                    // WJSOpenSDK_toPay(config);
+                                                    zhibo8Toast({ title: '充值异常' });
+                                                }
+                                                break;
+                                            case 'android':
+                                            case 'other':
+                                            default:
+                                                try {
+                                                    (window as any).zhibo8Act?.payAction(paramsStr);
+                                                } catch (e) {
+                                                    if (native_pay) {
+                                                        (window as any).zhibo8Act?.act("pay", paramsStr);
+                                                    } else {
+                                                        WJSOpenSDK_toPay(config)
+                                                    }
+                                                }
+                                                break;
+                                        }
+                                    }
+                                });
                             }
+                        }
                         // },
                         // error: function (res) {
                         //     permitToDeductMoney = true;
                         // }
+                    }).catch((res) => {
+                        permitToDeductMoney = true;
                     })
                 })
             }
@@ -565,51 +591,66 @@ function WJSOpenSDK_deductMoney(config, callback) {
 function getPaymentMethod(config, os) {
     getZhibo8Token(config.app_id, function (token) {
 
-        jsonp('https://wanjiashe.com/' + zhibo8Environment + '/applyOrderH5',{
-            os: os,
-            token: token,
-            price: config.price,
-            out_trade_no: config.out_trade_no,
-            app_id: config.app_id
-        }).then((data:any) => {
-
+        // jsonp('https://wanjiashe.com/' + zhibo8Environment + '/applyOrderH5', {
+        //     os: os,
+        //     token: token,
+        //     price: config.price,
+        //     out_trade_no: config.out_trade_no,
+        //     app_id: config.app_id
         // })
-        // $.ajax({
-        //     url: 'https://wanjiashe.com/' + zhibo8Environment + '/applyOrderH5',
-        //     type: 'get',
-        //     data: {
-        //         os: os,
-        //         token: token,
-        //         price: config.price,
-        //         out_trade_no: config.out_trade_no,
-        //         app_id: config.app_id
-        //     },
-        //     dataType: "jsonp",
-        //     success: function (data) {
-                if (data['status'] == 'success') {
-                    var paramsObj = data.data.pay;
-                    paramsObj['appid'] = config.app_id;
-                    if (config.url) {
-                        paramsObj.redirect_url = config.url;
-                    } else {
-                        paramsObj.js_callback = 'zhibo8PaymentMethodCallback(1)';
-                    }
-                    var paramsStr = JSON.stringify(paramsObj)
-                    if (os == 'ios') {
-                        (window as any).webkit?.messageHandlers?.Zhibo8PayMethod?.postMessage(paramsObj);
-                    } else {
-                        (window as any).zhibo8Act?.payMethod(paramsStr);
-                    }
-                    permitToDeductMoney = true;
+        axios({
+            url: 'https://wanjiashe.com/' + zhibo8Environment + '/applyOrderH5',
+            params:{
+                os: os,
+                token: token,
+                price: config.price,
+                out_trade_no: config.out_trade_no,
+                app_id: config.app_id
+            },
+            adapter: jsonpAdapter,
+        })
+        .then((data: any) => {
+
+            // })
+            // $.ajax({
+            //     url: 'https://wanjiashe.com/' + zhibo8Environment + '/applyOrderH5',
+            //     type: 'get',
+            //     data: {
+            //         os: os,
+            //         token: token,
+            //         price: config.price,
+            //         out_trade_no: config.out_trade_no,
+            //         app_id: config.app_id
+            //     },
+            //     dataType: "jsonp",
+            //     success: function (data) {
+            if (data['status'] == 'success') {
+                var paramsObj = data.data.pay;
+                paramsObj['appid'] = config.app_id;
+                if (config.url) {
+                    paramsObj.redirect_url = config.url;
                 } else {
-                    permitToDeductMoney = true;
-                    zhibo8Toast({ title: data['msg'] || '请求失败' });
+                    paramsObj.js_callback = 'zhibo8PaymentMethodCallback(1)';
                 }
+                var paramsStr = JSON.stringify(paramsObj)
+                if (os == 'ios') {
+                    (window as any).webkit?.messageHandlers?.Zhibo8PayMethod?.postMessage(paramsObj);
+                } else {
+                    (window as any).zhibo8Act?.payMethod(paramsStr);
+                }
+                permitToDeductMoney = true;
+            } else {
+                permitToDeductMoney = true;
+                zhibo8Toast({ title: data['msg'] || '请求失败' });
+            }
             // },
             // error: function () {
             //     permitToDeductMoney = true;
             //     zhibo8Toast({ title: '请求失败' });
             // }
+        }).catch(() => {
+                 permitToDeductMoney = true;
+                zhibo8Toast({ title: '请求失败' });
         })
     });
 }
@@ -702,34 +743,47 @@ function zhibo8DirectPayment(config, fn) {
 function getZhibo8PaymentParams(config, os, fn) {
     console.log(config, os)
     getZhibo8Token(config.app_id, function (token) {
-        jsonp(facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/rechargeAndBuy?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/rechargeAndBuy",{
-            os: os,
-            token: token,
-            price: config.price,
-            out_trade_no: config.out_trade_no,
-            app_id: config.app_id,
-            js_callback: "zhibo8DirectPaymentCallback()",
-        }).then((data:any) => {
-            
+        // jsonp(facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/rechargeAndBuy?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/rechargeAndBuy", {
+        //     os: os,
+        //     token: token,
+        //     price: config.price,
+        //     out_trade_no: config.out_trade_no,
+        //     app_id: config.app_id,
+        //     js_callback: "zhibo8DirectPaymentCallback()",
         // })
-        // $.ajax({
-        //     url: facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/rechargeAndBuy?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/rechargeAndBuy",
-        //     type: "GET",
-        //     dataType: "jsonp",
-        //     data: {
-        //         os: os,
-        //         token: token,
-        //         price: config.price,
-        //         out_trade_no: config.out_trade_no,
-        //         app_id: config.app_id,
-        //         js_callback: "zhibo8DirectPaymentCallback()",
-        //     },
-        //     success: function (data) {
-                if (data.status == 'success') {
-                    fn(data.data)
-                } else {
-                    zhibo8Toast({ title: data.msg });
-                }
+        axios({
+            url: facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/rechargeAndBuy?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/rechargeAndBuy",
+            params:{
+                os: os,
+                token: token,
+                price: config.price,
+                out_trade_no: config.out_trade_no,
+                app_id: config.app_id,
+                js_callback: "zhibo8DirectPaymentCallback()",
+            },
+            adapter: jsonpAdapter,
+        })
+        .then((data: any) => {
+
+            // })
+            // $.ajax({
+            //     url: facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/rechargeAndBuy?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/rechargeAndBuy",
+            //     type: "GET",
+            //     dataType: "jsonp",
+            //     data: {
+            //         os: os,
+            //         token: token,
+            //         price: config.price,
+            //         out_trade_no: config.out_trade_no,
+            //         app_id: config.app_id,
+            //         js_callback: "zhibo8DirectPaymentCallback()",
+            //     },
+            //     success: function (data) {
+            if (data.status == 'success') {
+                fn(data.data)
+            } else {
+                zhibo8Toast({ title: data.msg });
+            }
             // }
         });
     })
@@ -742,24 +796,40 @@ function getZhibo8PaymentParams(config, os, fn) {
  * @return {[type]}         [description]
  */
 function getZhibo8Token(appid, fn) {
-    jsonp(facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?app_id=" + appid,{}).then((data:any) => {
+    // jsonp(
+    //     facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?app_id=" + appid,
+    //      {})
+    
+    
+    axios({
+        url:facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?app_id=" + appid,
+        params:{
+           
+        },
+        adapter: jsonpAdapter,
+    })
+    .then((data: any) => {
 
-    // })
-    // $.ajax({
-    //     url: facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?app_id=" + appid,
-    //     type: "GET",
-    //     dataType: "jsonp",
-    //     success: function (data) {
-            if (data.status == 'success') {
-                fn(data.data.token, data.data.native_pay);
-            } else if (data.info == '用户未登录') {
-                permitToDeductMoney = true;
-                WJSOpenSDK_toLogin(appid);
-            }
+
+    
+        // })
+        // $.ajax({
+        //     url: facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?app_id=" + appid,
+        //     type: "GET",
+        //     dataType: "jsonp",
+        //     success: function (data) {
+        if (data.status == 'success') {
+            fn(data.data.token, data.data.native_pay);
+        } else if (data.info == '用户未登录') {
+            permitToDeductMoney = true;
+            WJSOpenSDK_toLogin(appid);
+        }
         // },
         // error: function (res) {
         //     permitToDeductMoney = true;
         // }
+    }).catch(res => {
+        permitToDeductMoney = true;
     })
 }
 
@@ -781,7 +851,7 @@ function zhibo8DirectPaymentCallback() {
 
     let countTime = 0;  //计时器
     intervalRequest();
-    let timer:any = setInterval(intervalRequest, 1000);
+    let timer: any = setInterval(intervalRequest, 1000);
 
     function intervalRequest() {
         countTime++;
@@ -820,67 +890,78 @@ function zhibo8DirectPaymentCallback() {
             }, 0);
         } else {
             getZhibo8Token(zhibo8DirectObj.app_id, function (token) {
-                jsonp(facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/orderStatus?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/orderStatus",{
-                    token: token,
+                // jsonp(facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/orderStatus?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/orderStatus", {
+                //     token: token,
+                //     out_trade_no: zhibo8DirectObj.out_trade_no,
+                //     app_id: zhibo8DirectObj.app_id,
+                // })
+                
+                axios({
+                    url:facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/orderStatus?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/orderStatus",
+                    params:{
+                        token: token,
                     out_trade_no: zhibo8DirectObj.out_trade_no,
                     app_id: zhibo8DirectObj.app_id,
-                }).then((res:any) => {
+                    },
+                    adapter: jsonpAdapter,
+                })
+                .then((res: any) => {
 
-                // })
-                // $.ajax({
-                //     url: facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/orderStatus?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/orderStatus",
-                //     type: "GET",
-                //     dataType: "jsonp",
-                //     data: {
-                //         token: token,
-                //         out_trade_no: zhibo8DirectObj.out_trade_no,
-                //         app_id: zhibo8DirectObj.app_id,
-                //     },
-                //     success: function (res) {
-                        if (res.status != 'success') return;
-                        if (res.data.order_status == 'success') {
-                            clearInterval(timer);
-                            (document.body.querySelector('.z-container:last-child') as HTMLElement).style.display = 'none';
-                            // $('.z-container:last-child', 'body').hide();
-                            setTimeout(function () {
-                                (document.body.querySelector('.z-container:last-child') as HTMLElement).remove();
-                                // $('.z-container:last-child', 'body').remove();
-                                zhibo8DirectObj.callback();
-                            }, 0);
-                        } else if (countTime > 5) {
-                            clearInterval(timer);
-                            timer = undefined;
-                            (document.body.querySelector('.z-container:last-child') as HTMLElement).style.display = 'none';
-                            // $('.z-container:last-child', 'body').hide();
-                            setTimeout(function () {
-                                (document.body.querySelector('.z-container:last-child') as HTMLElement).remove();
-                                // $('.z-container:last-child', 'body').remove();
-                                
-                                zhibo8Toast({
-                                    zIndex: 110,  //弹窗层级
-                                    width: '70%',  //弹窗默认宽度
-                                    title: res.data.alert_title,
-                                    content: res.data.alert_content,  //消息内容
-                                    cancelBtn: true,
-                                    cancelCtx: '\u53cd\u9988',
-                                    showCloas: true,
-                                    cancelCallback: function () {
+                    // })
+                    // $.ajax({
+                    //     url: facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/orderStatus?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/orderStatus",
+                    //     type: "GET",
+                    //     dataType: "jsonp",
+                    //     data: {
+                    //         token: token,
+                    //         out_trade_no: zhibo8DirectObj.out_trade_no,
+                    //         app_id: zhibo8DirectObj.app_id,
+                    //     },
+                    //     success: function (res) {
+                    if (res.status != 'success') return;
+                    if (res.data.order_status == 'success') {
+                        clearInterval(timer);
+                        (document.body.querySelector('.z-container:last-child') as HTMLElement).style.display = 'none';
+                        // $('.z-container:last-child', 'body').hide();
+                        setTimeout(function () {
+                            (document.body.querySelector('.z-container:last-child') as HTMLElement).remove();
+                            // $('.z-container:last-child', 'body').remove();
+                            zhibo8DirectObj.callback();
+                        }, 0);
+                    } else if (countTime > 5) {
+                        clearInterval(timer);
+                        timer = undefined;
+                        (document.body.querySelector('.z-container:last-child') as HTMLElement).style.display = 'none';
+                        // $('.z-container:last-child', 'body').hide();
+                        setTimeout(function () {
+                            (document.body.querySelector('.z-container:last-child') as HTMLElement).remove();
+                            // $('.z-container:last-child', 'body').remove();
+
+                            zhibo8Toast({
+                                zIndex: 110,  //弹窗层级
+                                width: '70%',  //弹窗默认宽度
+                                title: res.data.alert_title,
+                                content: res.data.alert_content,  //消息内容
+                                cancelBtn: true,
+                                cancelCtx: '\u53cd\u9988',
+                                showCloas: true,
+                                cancelCallback: function () {
+                                    try {
+                                        (window as any).webkit?.messageHandlers?.Zhibo8FeedbackAction?.postMessage();
+                                    } catch (e) {
                                         try {
-                                            (window as any).webkit?.messageHandlers?.Zhibo8FeedbackAction?.postMessage();
+                                            (window as any).zhibo8Act?.feedback();
                                         } catch (e) {
-                                            try {
-                                                (window as any).zhibo8Act?.feedback();
-                                            } catch (e) {
-                                                window.open('https://m.zhibo8.cc/feedback/?out_trade_no=' + zhibo8DirectObj.out_trade_no, 'feedback');
-                                            }
+                                            window.open('https://m.zhibo8.cc/feedback/?out_trade_no=' + zhibo8DirectObj.out_trade_no, 'feedback');
                                         }
-                                    },
-                                    confirmCtx: '\u91cd\u8bd5',
-                                    confirmBtnColor: '#333',
-                                    confirmCallback: zhibo8DirectPaymentCallback,
-                                });
-                            }, 0);
-                        }
+                                    }
+                                },
+                                confirmCtx: '\u91cd\u8bd5',
+                                confirmBtnColor: '#333',
+                                confirmCallback: zhibo8DirectPaymentCallback,
+                            });
+                        }, 0);
+                    }
                     // }
                 })
             })
@@ -950,22 +1031,39 @@ function zhibo8H5DirectToPayPopup(config, fn) {
 }
 
 let zhibo8Timer: any = undefined;
-let zhibo8ChildTimer:any = undefined;
+let zhibo8ChildTimer: any = undefined;
 
 //直播吧反沉迷机制--进入游戏
 zhibo8LoginAddiction(29);
 function zhibo8LoginAddiction(appid) {
-    jsonp(facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&app_id=" + appid,{}).then((data:any) => {
+    // jsonp(facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&app_id=" + appid, {})
+    
+    axios({
+        url:facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&app_id=" + appid,
+        params:{
+           
+        },
+        adapter: jsonpAdapter,
+    })
+    .then((data: any) => {
 
-    // })
-    // $.ajax({
-    //     url: facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&app_id=" + appid,
-    //     type: "GET",
-    //     dataType: "jsonp",
-    //     success: function (data) {
-            if (data.status == 'success') {
-                var device = data.data.device;
-                jsonp("https://wanjiashe.com/" + zhibo8Environment + "/isAuthenticate",{ "app_id": appid, "en_uid": data.data.en_uid, "device": device },).then((data:any) => {
+        // })
+        // $.ajax({
+        //     url: facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&app_id=" + appid,
+        //     type: "GET",
+        //     dataType: "jsonp",
+        //     success: function (data) {
+        if (data.status == 'success') {
+            var device = data.data.device;
+            // jsonp("https://wanjiashe.com/" + zhibo8Environment + "/isAuthenticate", 
+            // { "app_id": appid, "en_uid": data.data.en_uid, "device": device },)
+            
+            axios({
+                url:"https://wanjiashe.com/" + zhibo8Environment + "/isAuthenticate", 
+                params:{ "app_id": appid, "en_uid": data.data.en_uid, "device": device },
+                adapter: jsonpAdapter,
+            })
+            .then((data: any) => {
 
                 // })
                 // $.ajax({
@@ -974,110 +1072,139 @@ function zhibo8LoginAddiction(appid) {
                 //     data: { "app_id": appid, "en_uid": data.data.en_uid, "device": device },
                 //     dataType: "jsonp",
                 //     success: function (data) {
-                        if (data.status == 'success') {
-                            if (data.data.is_auth === 0) {
-                                if (data.data.act == 'authenticate') {
-                                    //实名认证弹窗
-                                    antiWallow.init(data.data.persist_token);
-                                    return;
-                                }
-                                //未实名试玩
-                                if (typeof zhibo8Timer == "undefined") {
-                                    var tipsTimeArr = {
-                                        '15': '\u8bd5\u73a9\u5269\u4f59\u65f6\u95f4\u4e3a\uff1a15\u5206\u949f\uff0c\u8bd5\u73a9\u7ed3\u675f\u540e\u5c06\u8fdb\u884c\u5b9e\u540d\u8ba4\u8bc1',
-                                        '10': '\u8bd5\u73a9\u5269\u4f59\u65f6\u95f4\u4e3a\uff1a10\u5206\u949f\uff0c\u8bd5\u73a9\u7ed3\u675f\u540e\u5c06\u8fdb\u884c\u5b9e\u540d\u8ba4\u8bc1',
-                                        '5': '\u8bd5\u73a9\u5269\u4f59\u65f6\u95f4\u4e3a\uff1a5\u5206\u949f\uff0c\u8bd5\u73a9\u7ed3\u675f\u540e\u5c06\u8fdb\u884c\u5b9e\u540d\u8ba4\u8bc1'
-                                    }
-                                    zhibo8Timer = setInterval(function () {
-                                        jsonp("https://wanjiashe.com/" + zhibo8Environment + "/addTime",{ "app_id": appid, "persist_token": data.data.persist_token, "device": device },).then((res:any) => {
-                                            
-                                        // })
-                                        // $.ajax({
-                                        //     url: "https://wanjiashe.com/" + zhibo8Environment + "/addTime",
-                                        //     type: "GET",
-                                        //     data: { "app_id": appid, "persist_token": data.data.persist_token, "device": device },
-                                        //     dataType: "jsonp",
-                                        //     success: function (res) {
-                                                if (res.status == 'success' && res.data.act == 'authenticate') {
-                                                    clearInterval(zhibo8Timer);
-                                                    //实名认证弹窗
-                                                    antiWallow.init(data.data.persist_token);
-                                                } else if (tipsTimeArr[res.data.rest_time]) {
-                                                    //剩余试玩时长toast提示
-                                                    antiWallow.toastTip(document.body, tipsTimeArr[res.data.rest_time]);
-                                                }
-                                            // }
-                                        })
-                                    }, 1000 * 60)
-                                }
-                            } else if (data.data.is_adulth == 0) {
-                                //未成年强制退出
-                                if (data.data.child_duration_rest == 0) {
-                                    antiWallow.exit(data.data.tips);
-                                } else if (typeof zhibo8ChildTimer == "undefined") {
-                                    zhibo8ChildTimer = setInterval(function () {
-                                        jsonp("https://wanjiashe.com/" + zhibo8Environment + "/childAddTime",{ "app_id": appid, "persist_token": data.data.persist_token, "device": device },).then((res:any) => {
-
-                                        // })
-                                        // $.ajax({
-                                        //     url: "https://wanjiashe.com/" + zhibo8Environment + "/childAddTime",
-                                        //     type: "GET",
-                                        //     data: { "app_id": appid, "persist_token": data.data.persist_token, "device": device },
-                                        //     dataType: "jsonp",
-                                        //     success: function (res) {
-                                                if (res.status == 'success' && res.data.child_duration_rest == 0) {
-                                                    clearInterval(zhibo8ChildTimer);
-                                                    //强制退出
-                                                    antiWallow.exit(data.data.tips);
-                                                }
-                                            // }
-                                        })
-                                    }, 1000 * 60)
-                                }
-                            }
+                if (data.status == 'success') {
+                    if (data.data.is_auth === 0) {
+                        if (data.data.act == 'authenticate') {
+                            //实名认证弹窗
+                            antiWallow.init(data.data.persist_token);
+                            return;
                         }
-                    // }
-                })
+                        //未实名试玩
+                        if (typeof zhibo8Timer == "undefined") {
+                            var tipsTimeArr = {
+                                '15': '\u8bd5\u73a9\u5269\u4f59\u65f6\u95f4\u4e3a\uff1a15\u5206\u949f\uff0c\u8bd5\u73a9\u7ed3\u675f\u540e\u5c06\u8fdb\u884c\u5b9e\u540d\u8ba4\u8bc1',
+                                '10': '\u8bd5\u73a9\u5269\u4f59\u65f6\u95f4\u4e3a\uff1a10\u5206\u949f\uff0c\u8bd5\u73a9\u7ed3\u675f\u540e\u5c06\u8fdb\u884c\u5b9e\u540d\u8ba4\u8bc1',
+                                '5': '\u8bd5\u73a9\u5269\u4f59\u65f6\u95f4\u4e3a\uff1a5\u5206\u949f\uff0c\u8bd5\u73a9\u7ed3\u675f\u540e\u5c06\u8fdb\u884c\u5b9e\u540d\u8ba4\u8bc1'
+                            }
+                            zhibo8Timer = setInterval(function () {
+                                // jsonp("https://wanjiashe.com/" + zhibo8Environment + "/addTime",
+                                //  { "app_id": appid, "persist_token": data.data.persist_token, "device": device },)
+                                
+                                 axios({
+                                    url:"https://wanjiashe.com/" + zhibo8Environment + "/addTime",
+                                    params:{ "app_id": appid, "persist_token": data.data.persist_token, "device": device },
+                                    adapter: jsonpAdapter,
+                                })
+                                
+                                .then((res: any) => {
 
-            }
+                                    // })
+                                    // $.ajax({
+                                    //     url: "https://wanjiashe.com/" + zhibo8Environment + "/addTime",
+                                    //     type: "GET",
+                                    //     data: { "app_id": appid, "persist_token": data.data.persist_token, "device": device },
+                                    //     dataType: "jsonp",
+                                    //     success: function (res) {
+                                    if (res.status == 'success' && res.data.act == 'authenticate') {
+                                        clearInterval(zhibo8Timer);
+                                        //实名认证弹窗
+                                        antiWallow.init(data.data.persist_token);
+                                    } else if (tipsTimeArr[res.data.rest_time]) {
+                                        //剩余试玩时长toast提示
+                                        antiWallow.toastTip(document.body, tipsTimeArr[res.data.rest_time]);
+                                    }
+                                    // }
+                                })
+                            }, 1000 * 60)
+                        }
+                    } else if (data.data.is_adulth == 0) {
+                        //未成年强制退出
+                        if (data.data.child_duration_rest == 0) {
+                            antiWallow.exit(data.data.tips);
+                        } else if (typeof zhibo8ChildTimer == "undefined") {
+                            zhibo8ChildTimer = setInterval(function () {
+                                // jsonp("https://wanjiashe.com/" + zhibo8Environment + "/childAddTime", 
+                                // { "app_id": appid, "persist_token": data.data.persist_token, "device": device },)
+                                axios({
+                                    url:"https://wanjiashe.com/" + zhibo8Environment + "/childAddTime", 
+                                    params:{ "app_id": appid, "persist_token": data.data.persist_token, "device": device },
+                                    adapter: jsonpAdapter,
+                                })
+                                .then((res: any) => {
+
+                                    // })
+                                    // $.ajax({
+                                    //     url: "https://wanjiashe.com/" + zhibo8Environment + "/childAddTime",
+                                    //     type: "GET",
+                                    //     data: { "app_id": appid, "persist_token": data.data.persist_token, "device": device },
+                                    //     dataType: "jsonp",
+                                    //     success: function (res) {
+                                    if (res.status == 'success' && res.data.child_duration_rest == 0) {
+                                        clearInterval(zhibo8ChildTimer);
+                                        //强制退出
+                                        antiWallow.exit(data.data.tips);
+                                    }
+                                    // }
+                                })
+                            }, 1000 * 60)
+                        }
+                    }
+                }
+                // }
+            })
+
+        }
         // }
     })
 }
 //直播吧反沉迷机制--充值
 function zhibo8BuyAddiction(appid, cb) {
-    jsonp(facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&app_id=" + appid,{}).then((data:any) => {
+    // jsonp(facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&app_id=" + appid, {})
+    
+    axios({
+        url:facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&app_id=" + appid,
+        params:{  },
+        adapter: jsonpAdapter,
+    })
+    .then((data: any) => {
 
-    // })
-    // $.ajax({
-    //     url: facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&app_id=" + appid,
-    //     type: "GET",
-    //     dataType: "jsonp",
-    //     success: function (data) {
+        // })
+        // $.ajax({
+        //     url: facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&app_id=" + appid,
+        //     type: "GET",
+        //     dataType: "jsonp",
+        //     success: function (data) {
 
-    jsonp("https://wanjiashe.com/" + zhibo8Environment + "/isAuthenticate",{ "app_id": appid, "token": data.data.token },).then((data:any)=>{
+        // jsonp("https://wanjiashe.com/" + zhibo8Environment + "/isAuthenticate", { "app_id": appid, "token": data.data.token },)
+        axios({
+            url:"https://wanjiashe.com/" + zhibo8Environment + "/isAuthenticate",
+            params:{ "app_id": appid, "token": data.data.token },
+            adapter: jsonpAdapter,
+        })
+        .then((data: any) => {
 
-    // })
-    //         $.ajax({
-    //             url: "https://wanjiashe.com/" + zhibo8Environment + "/isAuthenticate",
-    //             type: "GET",
-    //             data: { "app_id": appid, "token": data.data.token },
-    //             dataType: "jsonp",
-    //             success: function (data) {
-                    if (data.status == 'success') {
-                        if (data.data.is_auth == 0) {
-                            //实名认证弹窗
-                            antiWallow.init(data.data.persist_token, cb);
-                        } else {
-                            cb();
-                        }
-                    }
-                // }
-            })
+            // })
+            //         $.ajax({
+            //             url: "https://wanjiashe.com/" + zhibo8Environment + "/isAuthenticate",
+            //             type: "GET",
+            //             data: { "app_id": appid, "token": data.data.token },
+            //             dataType: "jsonp",
+            //             success: function (data) {
+            if (data.status == 'success') {
+                if (data.data.is_auth == 0) {
+                    //实名认证弹窗
+                    antiWallow.init(data.data.persist_token, cb);
+                } else {
+                    cb();
+                }
+            }
+            // }
+        })
         // }
     });
 }
 //防沉迷
-var antiWallow:any = {
+var antiWallow: any = {
     init: function (persist_token, cb) {
         this.persist_token = persist_token;
         this.cb = cb;
@@ -1088,7 +1215,7 @@ var antiWallow:any = {
         this.agree_t = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAW5JREFUeNqslV0rBGEUgGemiRvJhY/dSS7EkrS55FbyVYQ7/8Qv2PwIcutCblz42k1INqXkI1vuuZDCbkSK5+iot2k/xs576pnZmXd63tOZs2fc9Nq3Q/TCMoxBs1NfvEIWluDO59AHeWhx4oUktACjMOxxyKh0BwJw6yRQh7gyLqV40d1k4SFm1km4h5Jn1DSu1HQ0eY6daIUO84YNcRpu4dqmeFBbTDI+siUegBy0wTYs2hD3q7QddmEePmuJt2AdGitIUypNwL5KP8IP+WWuh6BT23AulEmPSgM9y/p7ud3DGX/BJDzCFGxAg651w4Fuegiz8FapVuVKcaPDSOQzWpaUIT2G6WrSai/vEsbhSWt4BV1wEkVaqysuYELHoZTjTKWlKG1Tq93OVZ4zNokUfoRn8lrzf4VnZJG0MDcSev4dm1m9WDEW6gnpmFX9vSeDXv6epxY+TX/xDCOScUG+UbAJxRjCojrEVfgRYACP3kwiXmMVeQAAAABJRU5ErkJggg==';
         this.smrz_icon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAScAAADrCAYAAAArB1A6AAAra0lEQVR42u2dB3hc13XnR122VYgOkqJESnKy/px1/K2yWWdtK5YVl9haZ4u18Wc7dpKNlcS2XOIWJ1uYWFpbcoskR7KcqHstmRIJNvQyAElRlARgAIIgKQEzADsJNgBTgSl3z7nvvjIVA7w3wJT/+b7/9968Q2LmXcz54dxz75xxuWAwm+aZEKtGfHPvGjkh1gkhLsWIwGCwFbUBb+i/DnqDe0jCotOe8eB9nomLqzBCMBhsmTOlwLsHvYFdKVBK0sB44Bwd/5oyqcswYjAYrKA2OOavo6zoF4O+UCwXmFI0TCC7E6MHg8Ect9FRceXQZOhvCDTTi4BSikKbhyfDGzCaMBjMEev3Bj/u8YYOLx1KSYqQ/u/olLgGIwuDwZYGpYm5fzPoC7Y5BKVkjQdPDPvCn6N61CUYaRgMlpfxKptnIvRTgsh8QcBkkccX2jc4Gfo9jDoMBstqm2hVjYDxV6SzhYZSihI0bXxu8GhwDX4LMBgsyYaPhO8kSOxfZiilKjDoC/+viQlxNX4jMFjFT+HC6we8wS12wXLgSEicn40K3+mIE5CapK0Kn8RvBwarQOPVMtqvdD8t74ftgGTIFxSnLsyLeCIhdPOHY+LQsbADkAr0DfoCv43fFgxWAcarY4Pjgc8RlI7bhcfkmTkxHzWhZDVm1dmZqNg/EbIHKF+QNnuGf95/crYWvz0YrFzrShOh93i8wX12ofTG8bAIROIiH4vFE+L4uTnhsZ9FTQ95Q1/vF+IK/CZhsDIxXgWjGs6zvCpmBxAjk1RX8kfFUiw8HxfjpxyoR/lChwh0H8NvFQYrYeNVrwFf8O/lKpitvUhBceI81ZXiCWHXZoIxMXo05ACkgq3Dvshv4rcMg5VatuQN/TcKYp9dCPDqWyRqH0qp9agz01ExPGF7VW+e9kf9hHtJ4TcOgxW5ccM3mvr02oUSr7b5QzFRSIvGEuLo2Tn7u8y9wTMD48G/3LQJrVlgsKKz/jdmaylQf66tbi090Hl1jVfZEgmxbBai4vqbJyMOfBQm6Bka99+BdwMMVgxQ6hdXeCYiX6PgvGgz+5CrarH4MlIpxS4GYnIzp83P6iVIL3oOhdfj3QGDrVRdaTL4hwPewCG7GQevooXn4qIYjDdz8qZO3txp555o13uYWwW7R6fQmgUGWy573Tf7mxSALXahxKtmvHpWjMabO3mTpwMfhTk+5At/Fq1ZYLACGrcyoWL3j6kXkq1WJrxKxqtliYQoeguE4+Lw8bAT/aNeoU2o/wHvIhjMQeOvWhqaCN5DQXbGbpDy6hivkpWa8YeKeROozXpUnBYMnumfDK7GuwoGs5stjfk/QIHlsQslXg0LReKilI2L9bwZ1OOzPdXze7zh77onJtCaBQZbrB30hW+iIHqRV5/stjLhVbByssh8wpHWLDS2Xv7ePbzbYLA8bPi0eBtNPb5HtaWQ061Mys14k6gjrVl8IfeAL/AuvPtgsMx1pUuGfIHP0scxjtkNtokcrUzKzfTWLMM2W7PQ1oMY9U1/9NBxUYN3IwymbMgX+l36673XLpR4VYtXtyrRuB51zIHWLFTPukCQ+ipvbsU7E1axxqtGFAxPy1Uku61MZqMCJuRmUmdaswQP0tepfxTvUlhF2diYuMrjDXyX9t74nWhlspIfOSlWc6o1C63q7RzyRn4D71pY+U/hJuf+C0HFazdovNzKZD4OCi1Pa5Y5mnr/qN8rrsc7GFZ2tt87929p2brHLpQO0urUbCgG8izmozC06fTIlCMfhTlDf1i+wJti8Y6GlbwdOj5bQ2/qR3k1yN5HTpa/lUm5WZBbs5wIO9GaZZC+X+92vLthJWkUC5cPTkS+Qm/mC3ZbmRxb4VYm5WYXnGvN8muC1E14t8NKp640EfkIQWW0nFqZlJs51ZqF2iGHaGXvH4eHT78N73xY0ZrnWOTtBKUdTrQymQ6irrQcNkebVSecac1yjFZgP4PWLLCisn7vhespxf8hr+pUSiuTcjPHWrP4gnvpD9S/R1TAVrqudKnHF/4LejOetvum5tWk+RiotKJbD0jnnGjN4g3GSU+NTohGRAls2W3YF34/1RsGbLcyodWjYAR1pWL7KIwTrVnoc5Kz9E3Ff8ubbhExsGWYwoVv9IwHfu1EK5MLAdSVitl4k6vXgdYs9EdsnPqZ/2dED6wwUDop3jrkDf4D7VdCK5MKM970etCB1iy0y7xreHzutxBNMOdW4byhT9Nfv6NOtDKZiwJKpfpRGK01i+1VvSj9gfvnVw/NojULbOlGb6TfISi9jFYmMN24/7pDrVnOU5uce91ucTkiDZa3vTYRaKQ335O86mK3lQmv/iBXKj/jzbFjDnxL8eB4YJSaDH4YUQfLaS1jY1fR6sp3qI/PbDm0Mjl+/LjYunWrePLJJ8XevXtBlALYtEOtWUjbPd6ZtyMKYel1pYm5P6JawHg5tDIJhULi/vvvF7fffrt4//vfL49HjhwBSQpYjzpzkT4K40BrFloFfnDfmLgOEQlzvT7u/y3aSNlpv5VJqChamUSjUXHvvfdKKOn62te+BoIsgznYmuU07TT/HwKtWSrTRo+Jaqop/YxXT+x+5GSqiFqZNDU1JYGJ9cQTT4Acy2hOtWahxZj+oSPh9yFaK8R4dWRwPHQv/fLP225lUoTfnvuFL3whDU6bN28GMVbALvjpozBHbNejaLNv6PmRE6F1iN5yriv5Ih8iqByw+xeNV2mKtZXJhz70oTQ4cUEctjIWjzvUmsUXCtJ7dyNvBkYkl5ENHIvcSl8msK0SWpmkgon1jW98A5RYYXOqNQst2hylrqifQlSXuO0bO38d7e5+gBSx9bEDqiudptWYUvjESSY43XHHHeLEiRMgRBGYY61ZvME9A+PB2xDlJWYbN4pLh7zhP6dU+FSltTLJBCfWt771LZpiYJd6UWw9EFprlv2TtutR8cGJ4BMjPtGAqC+FutKR0Hvpl9ZvF0pvlGgrk2xwYj344INyqwGsOIw36R53oDULaYY2Dn97dFRcCQIUoY2Mh9bxqoa2umHjIyfcysRfugGcC04sXs1ra2sThw4dEocPHy5qeb1eMTMzU/aQkq1ZTjnSmmVs2Bf8BGhQLFsDJsTVnonw/6FfTtBuK5OT3MqkxL/lZCE4laI+//nPiy1btpR91qe1Zgk58dVVHQOTc+8AHVbQXj08vUF+h5jtViaRsmllUo5wsmZ9Z8+eLe96FL0Npxz4lmLuO0Z/tD8PSqyAjU6Ja6jgfchuKxN/mbUyKWc4sT73uc+JYDBY9lM92Zrl7Jzd79aLU4PEu0CLZTaaX39/qb+0/XorkzLsZVLucGI98sgjFVM0D9lvzXIKhfJltE2bxGU06FNLaWVyvAhamQBO9nTnnXeKQCBQUSt70wEbrVl8oU+CGsuVNdFXQC+6lcmplW9lAjg5p76+vorbesB9508voTULfbnC/aDGMhlt339P3q1MjhZHKxPAyVk9//zzFbs/arGtWbirK6ixXBstx0P/MZ+tAVMV+O25lQInfJhZa82S10dhfMGnQY0ighPv8K5EA5wqy87Twg7gBDgBToAT4AQDnAAnwAlwApwAJ8AJcIIBToAT4AQ4AU6AE+AEOAFOgBPgBDgBTjDACXACnAAnwAlwApwAJxjgBDgBToAT4AQ4AU6AE6xs4ZSgD+7Nz0dFKDwnAsFwUahS4PTzx39RNGOeqmCIOmDMLU/LZ8AJcEqzaDQm/P6QmJkNFpUqBU6PPfZ40Y19JoUjcyIBOAFOywWn+flY0QYD4FR84kwKcAKcCg4n/mLKYg6Ef/rhj9L0EKnvVz8We57/Ycnphcd/nPGeent6SwZOrEhkHnACnAoLpxD9FSzmIHjk4X9JU89Lz4rE6OaS1HT/JvHoz9LvadeufSUFJ1aiAM3FACfAySiAF3sApAbx44/+qwh6XixZOLH2bn+uLOA0Nx8FnACnwsApFouXHJw8bf+vpMHEmtv/knjy8SdKHk68qgs4AU4FgROv0JUSnH75xJMiNvJSycOJdbj7VyUPp0IUxgEnwKkk4XRk9wtlASZdLz37FOAEOAFOpQ6nnc8/XVZgYp3Z92vxM8AJcAKcShdOvLrFq1zlBicWrzwCToAT4FSkcAqe8YnIkX4RmXwtTRy4vLpVjmBi8cojr0C+3L49w/2/KsLH94vZixcAJ8AJcHJCF6b94tz5GdLsggoe9eQMXl7V4tWtcoUTi1cg9+34ZVZ/7NCOogQU4AQ4lQycLlz0C9+RM+Lw+Ik8dVzERpsWXNUqZzBJ+NAK5Js9z+f8N5xBAU6AE+C0BE3PBMT45OlFgOmEGBubKHvw5Kv4gdzZIU/xACfACXBagqbOTS8KTIDT4sQ1KMAJcAKclqBTZy4CToAT4AQ4AU6AE+AEA5wAJ8AJcAKcACcosy4e3iPe9J1yTGOko8fPyoUMwAkGOAFOS9aFw7sXPb756MzZacAJBjgBTsUHJ/69AU4wwAlwApwAJ8AJcAKcACcY4AQ4AU6AE+AEOAFOTulN70n5eUjACQY4AU5Lb63i3SdX1pzSFOnitB/7nGCAE+CETZiAE+AEOAFOgBMMcAKcACfACXACnAAnwAlwApwAJ8AJcIJVLJzeGDsm4qNbAJ88FD42BDgBToDTcsGJNX2oD/BZqIUvAfzU0SPi+Knzi9IJkp19TIATrKLhxNnT2cP7RPBghwgdbEtTpQBofnR7xvufOeQWk28eXvpGS99JW21RACfAqWLhtJAqBU5nD79akPFj8VdwAU4wwAlwApwAJ8AJcAKcACcY4AQ4lTCcZgAnGOAEOBUXnN4gXZxGQRwGOAFOS22JMva6mDg65agmj03J7gPYSgADnAAnG5ssh4tukyXgBAOcACfACXACnAAnwAlwggFOgBPgBDgBToAT4AQ4wQAnwAlwApwAJ8AJ+5wWI+/k6YJ2IgCcACfACXBaso6dPAc4wQAnwKn44HT0+FnACQY4AU6AE+AEOAFOgBPgBDgBToBTCcPpBOAEA5wApyKD0xvewrVIAZwAJ8DJothoU0XAKXB0v2wKZ1eFao8COAFOJQun87S3phBwihxsrgg4BU+PYxMm4AQ4FQJOLN5f4zScLlbIV0fNXjgLOAFOgFOh4MQ6PXWRGp2dkTuVndAp78GyB1P0zY6SAxPgBDiVHJwc1/SsiB3aUdZwCp0YBZwAJ8Cp5OBECp08VLZgih1uFjMzfsAJcAKcShFOHLzRse7yXKU7M1mSYAKcStyEy3VJPgKcFtbsxYsyyyirNinHR0oWTIAT4AQ4WQF14ZwsHpdHnelASYMJcCp1GIn85JkEnPIvkM+IyJHXKcC3lGaN6Y02EZg6UvJgApxKDUoW4Gzc6LpU5CnP+Ox7AadFZlHnp0Rk8jURP7yzBKC0RcyPu6mw/wbVzwJlASbAqbjtEtcCUNp0t+syltiUW0PeC+9bETjFYmUQJAHhP3+adlh7KfgPZ1X4+IHC1o/Gd6c9Z/DUm5QlHaVsb7psgJS0igo4lRacUsHk/oDrcnqcU8NvTL1/JeAUjyfKMmgyF9QvFBRO/smhihlLXZHI/ErCyYy/DHIlq8KnchYocTbkJuiw+u9xXSH1uKZNG11X6tKvDR48eftKwInNHwgDTo7AyVNxcIrF4oBTUYJJTeE2WqF0twVKBJ1RAlDLva6rWGMPmyL/1dbHg/uP/f5KwWl+Pgo4AU6LViBYmPdjvnDKa8EpM7DKezpnDEyGbImzJIbSGAOJ5P5T19V7v+56y96fmNqx0fVW62PPyMQHVgpObFzYBJwAp7zH0h+kkkB8ReGUz4KT/De5YVX+cNLrSjqYWlR2xFCia29t/6brbe4vuq6ha+mi6wPDhz+4knBKJBKyuAk4AU4LgylUkOncouA0HnhmocUm3S//TSZYlWM2lSlrcmcCE2VEJylDYgDt+bbr2n33uq7bt9F1Xed3XNfr4sd8/fXB/X+wknCybi3gdB1wApxS5Q+EZAGc/5AV0vKF00ZKCHItNrGP/01RwknsvvEusXudm9SfXTf2L8q/i3VDf4KkHdf1J/ro2Lt2IK7E51H32kFWXGrNYLRnjSfatcYTZ/VY1LVWXp9+5e43igFO1kyK03b+C1k2igQLCqe5kwfKa7wsihcYSIuFk+9A07mEikM95qyS1/o0vxGrfea5HsOpys0CO7rxZdJXNTCN3XoVXQwQTAQdRdpxd5brOfz04qXEbtIuTYleUt8NIt6ra62IudcKgpKI9ZC614po9xpD8xnE12f23CWKCU7LaRPnhGgfFeKZfUI8tkuIR/sKo6d3hwsKp549owV77Swem6dfEaL5gBBvnuE/IGX5dsgLThP7f2nEXMxNMZgivqb7OT71OBV96nGfil89pg1lYEAqH+z4X17/bpdwr7+aLoSNf+yA5E3pN2G5SXnjSjqUot3aUQKoi9RJEOrSxOe69GvTuysLTucDQjzUI8SHHxbiXfctjz74o8LC6R+eHl22e2Hd8VMhHmgX4uR0hcJJJQGGepXUYx1UcV0cnxZQ8TEVVmmQStXuBTixoP/G29S07oZnEylPZD6+IeVxHn55E2vVja3VYCQHQw2CzJrWqIxJZUqdq8Ucg6hjtTw31JF8nN718YqAUyQqxM8pA3jPg2JZA7kc4aTrd74vxI+7aL9apILgNPxLOUPR4m2Ndt6jSUsQ1hiQkjOZXhNQRtz2qjhWMa0nHcLIptalnGfmxCL8o2bNqXft7yXT0Kb6tBuJSzBpMkmtBonVrWnOAqK5jkapSLtSmzqq6xcrAE5Ts0J8+kmxIgFcznDS9UePCXHkfKXA6Tkz3npSYs/yOC4htUYBSmVUvelxzI/FrrVGjCec5IauPTd8OaUofoPHqA+lzS+THy/sVzfRuzYJVDqpowpK0S4CUpcGJoZPREFpTkFpziL5mK5f7PtYWcNpkoLmDx4SKxq85Q4n1vt+JMTIicqAk17H5ZiLK8Usx4zwSoVUCqD0GNdglZkR2a4t4PeLfdXXpcLpHr0QlgSdvpTzvPwalETKTcUVseVgdelTOQ1OOpBY4bYGEW5tEKEWU/IxXb/QW75wmqWX/YnHxIoHbiXASd7nPwlxeqYC4NRlSQRIUau6V2uA6jJnMnoWlVqrMjKnXjN7EgpORuE8AyMW4ycOPZ6+ncBddw05p/XCl8ihRE6fSVR5M0bRzTKl0wer0zKNYzARgCJWGKXAKUzHC+7yhdNXNoniCNoKgRPrM0/Rh7oT5QsnH8HJmgRkkw4rHVB6RiVB1ZNcTE+a4klZ6lDZOJGv/+W1786832nXDY8k9CfrS15StNaScvnjvWu0f6fAJFQBTsJJTulWa3DqNOEks6XWRgmfcEu9CDcTkKTqCUz16kg+Op53/2FZwmnfhCiagL3jh5UDJ9aO/WUMp6HnaFbCcabF2rwSz1TksUPz6QtO1qzKAFRaBrVGSlgSkWTYZLq2sJ+0N/tmzJ4b30npWkLPgISFjPk+Nl4034Bbl1oV6OEbXi3ickqnD1KDrClJKCkQBXbWi+COOovqpQJ0fq7no2UJp089UTzB+u/up82EBwoHp+/+S3HB6SOP0Ie6Y2UKJ8+zYl7VcaU6GjRR3EVI8yw1e9EA1SgTBw1OJIpZOcVTGZSMZwWnRJ+SivlULiQzIg//7rV/knu3+K4behMp/zmR4zztWq/54rV5q3Zj2gqBonKnSe9ImzZdkxkSQ2lnnVRge52EkVUhun6uu/zgtP+4KKpgZQUHf10QMMUPvCS++Mho0d1v9+HyhJOX4BRRNdw5OvL5XKsmvqb7GFRGZkXxGevkGY4CFCcUPdZalEo6FJjiElR58iGLn45nec9lbjjtWfPHItMP6E2mXFa/BU4s3l+R0MGk4MQ3r4OJ60w8XWMwhVTGJMEkVWuRdu1cV/nB6WF38cFptKswcAq9/pT49I/Hiu5+/+f28s2cIgaE6o0ZiiktBiMKXvp0jxMImT2R4jKDMovlCZVwGNM7BadURqQBKoefkqIHF/6cXb/rCkq/Tskf1GuFTvITZPXraZ+iK98UwymuCByT+5kscGrRaktBlTUFdDhtqxV+kvVYrnD6s2eLD04vPPsCZTkvOg6nUy33iY89cLro7veuR8s0cxp8VltMala12+Z6eR62nEcIUjqcZAbFgGpvNKZ4RvaUAic9g9ISEpMBRs2517KdKJd/19q46F53S34fBO5be18SfCwVenPqlsUvp3OrtRet34RcqlxtkHi+o0GbB7dpBfCgzJxoOiehpIFpdmutmLGIHwdIZzvLD04f/GnxwemrD70uznf/xNkvxdz7C3HgV38n3n1fvOju9933U6eJeJnCqVkvmahYk6ozYCUhpQClQ0rGaKclg5JTO216J5MN92pzeicBlQychHVhLI0RyX5iRmv+XQr2rLmR/kPMTNvMH6g/tk7dkvz0ooVbO7LkDXVrmVO0qzGlEK5RmweOMyY/Td/8WzXNbq0Rs02a/E0anPjaVMdHyg5Ot32/+OB02/3z4tVffk/M7PpnZ6Zzrz0pJjZ9U/zg0daiu1ddF0PlB6fxwWeMcolVISWerciSCsFKZlE09YtQXHKhPNrZoKZ4nFQ0yhiWi1ok0WPGuHCncyHTeVZ/35pPLK6NSt/abaI3eV6Z12P1ghM9Ck7das7a3WgUwuf11QIeiGZVBN9hTuEYQv4mTSagajQ4dZYfnIo1WP/sJwfF+PPfEGc7HhDR4ReWVgAfeVFcdD8kfL/+huh79gHxu/dHivZ+p/zlCKdnNSDRH/5gUg23ViYDMu7UYhMDSpvi1RvZU5QU4wK5BU6shJLQAWWtPy3m2LfmCDe8W2SPp9UfzfTDsp0b19zaC7beBIMpZmRNCkyy3qRlTtrqnAYmvyVjmrHIr45THR8GnJZR33lkjwTUxKZviam274vZPY+J0KtPinD/M1kVeu0p4X/5cZqC/1Ac2fy3wvfC34hXnrtPfPiBc0V9r2UJp4Fn1CKTqttmEEMrpAClZ09hHVDtVjg1GsmGBFPPaiPexQJsyOanJOjvF9+Ajjvg9a71ZqWeO9t1BSd1A/rN8JROzl87tBuea9XAFG6us8CpxoBTsIkGpOlmkWh6uxCsLUpNv6E9ThX88MOfl59jimMr1LQ6CVBBHVAtJpzm5PSuUQKK4RRTgMqUOaUnKrkBRVnTnNhX37C0Dpm9a74t3NbNlJYCWMrRkJ7yKSjFu7T5aqzThJO86Va1arDTujqnTd1CBKZEpgGGIMgxcYwxoPzW7GmHVijX4KRqT5apncygukw4GWWcVD70ZuaG1U9wemHp7Xvda2rph4T1AncykFZnPqp0T6aAPaqQJuGk3eC8JXOSO8J31qpVOjNrijVtEGLr2yEIKrBiW2+WcceJgZ49hZNqT/USThqgGmQsJ5KmdY1G9qQzIBsn0vy7Gn/fXn9x9+rnrE+uT9uyPu6hF9ujz081MOlwklO6DqZxvcqc6iScQrIYrmVNM1uqRWKbGrxtSpnO4Ycfftt+jjW5+LRVh1OtjMtwS50Bp3kLnGISTo0yzvWjIEDlzQf9ce/qUftffkCN6LI9UeqTyms92gu2wilmgZM2rVNLlrLepA2IWQivNgcSgqCCi2OOARXUp3cUkxEdTq1aMmHAqVODUtwCp0QWOGXig6WAfq8z387iXu0RC5BQLCZzaquXZA4rOIUVnGZokDhzEttp0Lbfqo7W80zX4Icffjt+HU48ewlt12Yy+tROwoniNcZw6tJkxLYVTj3ZYaRvLbJAyy86q653Bk59q+9JWPY2JCxLiGnXuxVZdXVqiqmsSU7pLHDigQht1zMnHU6WwdyhzuXx1vTBhh9++G35OeZ0OMnsiWIyIuFUJ2N1TmVO0U4Fpy4z8Uj06IBK5oCw7HVMOmq1ql8497123IjO3Tit/fDG5BeR+mK6G5LglOjUAZUMJ3nzvGyp4BTQ4bS5ShtICIKWRRqcqmUMGnCiGc0cwylLUTzepRfHtZmSSOGBlRPCygnJiiwN5ZZqNMf8WfKTmkdhfWzASaV/dDMJmTnRDbanw8nInGhwZrcoOO28NbN23JrdBz/88C/JP7OlSvit2RPFYzgJTnUydvXsyYRTg6o7NVgSFisfGtNB1du41/lvBe5pfCdlTwnzSRuN+lLSNQmnBvPF881wOshwMlbq6hScuN5E81y5jaBaZU7VyYPXnHJMFfzww2/LzwmBhBNLrtrVyBkNx+h8a52M13m5alev4GSJb453CacFuKBf7139JwX52nL64X2ZXoDIASctc1Jwak+HU0iHkzVzar4VgqBlkgEnisEgb4LOAidOLuI6nLozwykblJTv3IIN5ZZee2r4lAmhlGM2OHVYMicrnHZq81oeiDQ4tdCgtdyijlbdkuUcfvjhX6qfY27WUncy4GRM7Uw4xbLBqTsDkLqTzwlOD7oKZfTp4SvpCU7rK3LGC7BI8IvtSoETF9LaNThFF4DTrIQTDVzrLeqoD6R+7Vb44YffQb81c2I4ha1warbAqb1eJhl69pTQperMJgPMQrnlGjWUq7/FVUij4ve/ak/YYJH+IvjF1is41WvimzHgxDdZZ4FTTQqcqrTMqfWWDLo1y3X44Yffjl/CqalKBCScqpMzp+ZaBac6C5zqVfJRr8V7Egcyn4ueBo+r0EYEbEkGU4rUC9ZuQIcT3RSBKdqmw6k2BU7VyXBquwWCoGWSljkxnKoscKox4dRSK2tPnFyYcNKOGpzqRU4maLOpk9Tp5NLCgal9zToiYDTTk4tMcOo04RS3wqklHU6BTHBqX2Bg4Ycfftv+JDg1MZyqnYeTxoj/VDA4URHseznBlANOsRQ48T6KsIJTWM+caJBmXqrSBg2CoGVRdjjVZIBTnQ04NbYUJmt6nL6VpafhZFIRzHrUxS+4MxlOXG+KtSk4tVrgtENlTlu1PRZJcOq4xTymCn744XfMzzEn4bRFwYmShUgmOFH8cpIhEw4dTjqgupI5IFK5oCkuuhpuLsQmzP+e/ESpL6g+BU6KsO0anKJttUlw4hvXN2AGOXOigTHg1HGzZTBvthytgh9++J3wG3BqMuFkZE4sA061WubUYSYfCYpzkwX16clKEifqGVo/cB5OXQ1ufcqWU/xiJZj4JupkrYlpG5NwIrUyibWbDqspXXBrlYLTKhqoVUJ03qx0i+U8k+CHH367fgknir2AApSE03Yte5prVnBq0eJXy5zM+DbhlEtmuYfgNCVaXFc5B6a+1e8QXfUJ+cMXeCFCh1OHppgFTrFWC5zopiOqGM6ZU0DBiSW6bk5WZ5Zz+OGH37afE4LZLauM7CkJTkbmlAtO+QDKwoiu+s86uH2g4eG8nzwHnBhM85LCGpzCBpyqRFDNef2Z4ARBUMEk4bSZ4bRKg9PWDHBqcRBO3fUvO7R9oOFt9AOnkwGU5VyHU4flBhSc+MbmrXCS0zptEII0GEGe727RBkh03wxB0DJJh9NsGpyqxXyzVhSXcSvhVJsOp2xTu84sjGBA9dT/tn04dTZ8gX+40J8kiwx/hwVOquakycyceFrHxbYIw2mbtiuV4eSngnhgswVOPVkEP/zwO+afeZGSAgKUf7M2teNkIbxNwWmnBU5qamfGtBbrGqDqFyVa7fu5/U4EnfWDCb0qn/FYn/y4o1bBSRG2TWVPaloXba1RcKo24MQ1J5k5qewpfUA3ZB9o+OGH35afMye/UqBplYJTlYTTnIJTNA1OtVLpcLLyIRO06lQyUzcrWqqvs5M1vcd8kjwloaRJnqtUUINTDd2kWgHYqZGZB4FrTiFasQs2afQW7puVNliOG1KuwQ8//E74p1+8XsyqzCm4ZZVcPdendRynHK8ctzJ+22oVmOoUnEidtRlYUL8AKySgvmRj+0D900uFU8ICp7ixUlej5rAWOG3n1QH+TI8GJzmt40Hr3WAee29Wxw3mQMMPP/yO+GcITjJrygNOMQNOSlnhtLBEZ/3IEsG0tobIFrILJ86aEm3pmdN8sw4nLXvizCnUVCUHxxhICIIKrtmXrjdqTqEmLRY5aeCyy5yqO3HcxtrS4ZSwAScJqPa625cwpav9pr7ylqTOLOeG1AvWb0BlTnq9iW+Ssye+Ya47SThttcCJsifRtwGCoGXSrMqcZNa0RYvFiF5z2mFmTjHOnFpT4KQDKhMjMvIh2U/Z068WBybhukR01I2ZsEkBTxqMzPN4e40JJwmmGmNap91ctYg1q/0TOzh74oFQtaetq0w47dqQfEwV/PDD74jfL2tO1ys4UfZEcRi2wGlewqlaxW+NjOmEDqb22hQuZGJEXQ5/7Zx4uaF+EVlT/UcSHdYnzV8anPjF1ygwkVprjBuTcGqpltM6re7E6WOVObWjgRG71muDl1Xwww+/U359Wscr5ZwccCxq07oqBadquTdRz540OJHaVKxL1S3Ahux+WtX/u8VM6ZoW88OtfiucEm1WSNUakIoqOEntTM6eJJx206DtXo8jjjguw9GvsqYQi+AU0uFEccnxGd2pJRRG5sSyxLcGp9qlq7N2Mq9GdKK9ep3oqI0u+YlkmmfCiW9CFtIs2RNDSQJqp5Y9zavsiee5DCixZ702eHvWm+e7M1yDH374bfsDBCd9pS4JTpw5MZxUvFrhZE0+Eu024UQSXbV3LQynjtp/NOaRqceOlHlmVn8ynKLWaR2nh81qardTTe/kkiUNhAKUMYAQBBVcwc3Xm2CimUtEwWlOz5xUvMYzwUlXNi6kKoufuNO8cEO59tqTGX9oe03mJ8vkVy84bjla00I+lzTeaWZPEk4qgxIvr4cgaJmk15pYcpVumxaHPKOZ38ELWGpapwAl4dSWCU412aG0sD9On+PdkCNrqrvbhIwlZVvsY/mCq2XxO06SgOLzFu2xLKzxDTdXEaCqFKA0OLHwhoGg5ZOWNV2vsqZVqhDOcalJZk7NWuyyYq1afJuqsccL9Zj484Mc9aaanvT/uNATZ/CrFx3nY6s6b7UU1RSFY7IoXiUhJQdih7Y6IPauhyBomcRgCjdpYApv047zakqnwalKxa6ZcMTbqlUGpQC1VFZYHtOsLXMjOtFZ8w7RUZPI/cPylPGCq5MIqwPKAJVKF/nmo80mqcUrNGiv3KS0PvnIAwo//PA75o9wxqSypvD25MyJZzbRlipzWteiJRxxY1aUC06LFxXGP5NhSlfzUNK0LCd8cvt1sjKc4m0W0upq1m5SgsmSQUXVNC95ULMJfvjhd8JvhVOE4DSn15usWZMVTm0WQOWC0xI4QoXxPWkN5QhOF83ilrXQleNaTr8le2pNvyH9ZhMpGRRDSuy7CYKgZVLYAiatCE5QIsWMzEnVi1vMjElmTe2W8k37AmxYhF90Vb3Lun3gL4zCVptZ0E6HzWL91tpTlQYp4+aqjOxJTvNk7UkDlXj1pszad1N2H/zww78k/5zMlvSMyQKo5hQwtSTHcaKtyijXZORCGhPy81Oi9JjZUK6tZiC5+u6Q+EboBuLyhjTFrZJzWU3W85wDDEGQozLhtErCKcqAMqZ0Wmwa8WnEsgmnzKpZgA/Z/aKtZlbsqb2WCuFV1xcETPpKXRZAJXQ4NVuOSuK1myAIWiZp2RIDaRVN5VbJqVys2ZQVTnpSEU+ClPOinQMf1KZ1bTWDhXiCeGsylNLA1JKcRekSr/Og3agdX1eDKM+t1+CHH34n/BJInDHt1BS3gkmJz61xLLOmAsFJtFWfE+5razU4bau9VrRVfZo+V3dPmlozXFukP96q/p36twSjv0yV4GNz1V+xtEHMppsE/PDD75yfVuq+IrV91b1S26q+TDWnL9HU7ovxnVV/LcVxaY3Xdj2WnWGEeV7zp6K7Zq1rBewSwRKmNm50XSqUNt3tumzjB1yXi34atDTdJDJfhx9++O343V90XTP8Tdfb+je63rr36663uDe6rm6513VV/z2uK1j0+HKOTT1OZexSHLvKzHLCSQeUGFADN6CU6Rx++OF3xE8AMqA09rDrqhbS6N2uK3UwccIgEweKz41lDKdkSGWD1YBlMCEIKqwoSxojtSht2ui68nEFJrHJdZmeNVUKnLKDijVIAwZB0LJolGCkqz8FSlYw6VCqFDBl/gCydfA8lqMnw+DCDz/89vwEI7eSNVPSlZIt6apQOHnWiWTdKNKvwQ8//E743R8w60ppQErOlioXSgachmjQpG4U5nkmwQ8//Hb9+vQNcMoHTsM0cMNqAK3HbOfwww//0v2pMBLpdWAXLAVOEAQVXplhBCBlhNN+GjAIgpZFLhS6lwCnESXr4/0pj+GHH35bfsBpMXA6sG7eGNiRG5TWWY5WwQ8//Ev2U6yBOIuB08i6AXFADeqBHIIffvjt+SnWQJzFwOng2o+L0RviaYM5usBgww8//Pn7OcYO3vRxEGcpgDpIGdQoTfFG1cBCEOSAKKY4tijGQBpYUdrI0cgtg77g1kFvUNjRgaMhcd4fFRNnIsLuzyIdGZoI/TF+OzAYzDV8JHynxxsccQAsdhQcnAj/773HxFvwG4HBYOY0WojLPL7IlyiTOrfMUEp4vKFfjYyH1uG3AIPBstreYzPVg+PBR0jRQoOJoPS6Zzz0Xow6DAbL24bG/O/0+IIdBQGTL3hqyBv8840bxaUYaRgMtiQb9kU+MegNjTkDplCEsqUHDp8V12JkYTCYbRsdFVcOjAe+TYCZWTKYxoPbBsZnbsVowmAwx23EJxoINE+Q4osA0wGPL/AhjB4MBiu4DYwHbyPo7MkNpcD5IV/oy263uBwjBoPBltUGfaFPUg0pFVKnqZB+3+gxUY0RgsFgK2qeCbFqxDf3rpETgjuXYQUO5oj9f/dpFKcaxuk1AAAAAElFTkSuQmCC';
         // this.container = $(this.createDOM()).appendTo(document.body);
-        this.container =  document.body.append(this.createDOM());// $(this.createDOM()).appendTo(document.body);
+        this.container = document.body.append(this.createDOM());// $(this.createDOM()).appendTo(document.body);
         this.timer = null;
         this.handler();
     },
@@ -1115,60 +1242,70 @@ var antiWallow:any = {
                     _this.req_loading = true;
                     $authorizeBtn.text('认证中...');
                     //提交数据
-                    jsonp("https://wanjiashe.com/" + zhibo8Environment + "/authenticate",{
-                        realname: username,
-                        identity_card: idcard,
-                        app_id: 29,
-                        persist_token: _this.persist_token
-                    },).then((res:any) => {
-
+                    // jsonp("https://wanjiashe.com/" + zhibo8Environment + "/authenticate", {
+                    //     realname: username,
+                    //     identity_card: idcard,
+                    //     app_id: 29,
+                    //     persist_token: _this.persist_token
                     // })
-                    // $.ajax({
-                    //     url: "https://wanjiashe.com/" + zhibo8Environment + "/authenticate",
-                    //     type: 'GET',
-                    //     dataType: 'jsonp',
-                    //     data: {
-                    //         realname: username,
-                    //         identity_card: idcard,
-                    //         app_id: 29,
-                    //         persist_token: _this.persist_token
-                    //     },
+                    axios({
+                            url: "https://wanjiashe.com/" + zhibo8Environment + "/authenticate",
+                           params: {
+                                realname: username,
+                                identity_card: idcard,
+                                app_id: 29,
+                                persist_token: _this.persist_token},
+                        adapter: jsonpAdapter,
+                    })
+                    .then((res: any) => {
+
+                        // })
+                        // $.ajax({
+                        //     url: "https://wanjiashe.com/" + zhibo8Environment + "/authenticate",
+                        //     type: 'GET',
+                        //     dataType: 'jsonp',
+                        //     data: {
+                        //         realname: username,
+                        //         identity_card: idcard,
+                        //         app_id: 29,
+                        //         persist_token: _this.persist_token
+                        //     },
                         // success: function (res) {
+                        _this.req_loading = false;
+                        $authorizeBtn.text('认证');
+                        if (res.status == 'success') {
+                            if (!res.data.is_adulth) {
+                                _this.removeDOM();
+                                zhibo8Toast({
+                                    zIndex: 110,  //弹窗层级
+                                    width: '70%',  //弹窗默认宽度
+                                    title: '\u5b9e\u540d\u8ba4\u8bc1\u901a\u77e5',  //实名认证通知
+                                    content: '\u7ecf\u68c0\u6d4b\u540e\u53d1\u73b0\u60a8\u662f\u672a\u6210\u5e74\u7528\u6237\uff0c\u6839\u636e\u76f8\u5173\u6cd5\u5f8b\u89c4\u5b9a\uff0c\u5e74\u6ee118\u5468\u5c81\u7684\u7528\u6237\u624d\u53ef\u4ee5\u767b\u5f55\u6e38\u620f\u4f53\u9a8c',
+                                    align: 'center',
+                                    cancelBtn: false,
+                                    confirmCtx: '\u6211\u77e5\u9053\u4e86',  //我知道了
+                                    confirmCallback: function () {
+                                        if ((window as any).webkit?.messageHandlers?.AppJavaScriptMessageHandler) {
+                                            (window as any).webkit.messageHandlers.AppJavaScriptMessageHandler.postMessage({
+                                                type: 3,
+                                                data: { close: true }
+                                            });
+                                        } else if ((window as any).zhibo8Act?.finish) {
+                                            (window as any).zhibo8Act.finish('');
+                                        } else {
+                                            return 'no-method'
+                                        }
+                                    }
+                                });
+                            } else {
+                                _this.removeDOM();
+                                typeof _this.cb === 'function' && _this.cb();
+                            }
+                        } else {
                             _this.req_loading = false;
                             $authorizeBtn.text('认证');
-                            if (res.status == 'success') {
-                                if (!res.data.is_adulth) {
-                                    _this.removeDOM();
-                                    zhibo8Toast({
-                                        zIndex: 110,  //弹窗层级
-                                        width: '70%',  //弹窗默认宽度
-                                        title: '\u5b9e\u540d\u8ba4\u8bc1\u901a\u77e5',  //实名认证通知
-                                        content: '\u7ecf\u68c0\u6d4b\u540e\u53d1\u73b0\u60a8\u662f\u672a\u6210\u5e74\u7528\u6237\uff0c\u6839\u636e\u76f8\u5173\u6cd5\u5f8b\u89c4\u5b9a\uff0c\u5e74\u6ee118\u5468\u5c81\u7684\u7528\u6237\u624d\u53ef\u4ee5\u767b\u5f55\u6e38\u620f\u4f53\u9a8c',
-                                        align: 'center',
-                                        cancelBtn: false,
-                                        confirmCtx: '\u6211\u77e5\u9053\u4e86',  //我知道了
-                                        confirmCallback: function () {
-                                            if ((window as any).webkit?.messageHandlers?.AppJavaScriptMessageHandler) {
-                                                (window as any).webkit.messageHandlers.AppJavaScriptMessageHandler.postMessage({
-                                                    type: 3,
-                                                    data: { close: true }
-                                                });
-                                            } else if ((window as any).zhibo8Act?.finish) {
-                                                (window as any).zhibo8Act.finish('');
-                                            } else {
-                                                return 'no-method'
-                                            }
-                                        }
-                                    });
-                                } else {
-                                    _this.removeDOM();
-                                    typeof _this.cb === 'function' && _this.cb();
-                                }
-                            } else {
-                                _this.req_loading = false;
-                                $authorizeBtn.text('认证');
-                                _this.toastTip(null, res.msg || '请求异常');
-                            }
+                            _this.toastTip(null, res.msg || '请求异常');
+                        }
                         // }
                     })
                 }
