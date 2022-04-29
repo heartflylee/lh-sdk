@@ -4,20 +4,20 @@ import axios from "axios";
 import jsonpAdapter from 'axios-jsonp';
 
 
-function setCookie(name, value) {
+export function setCookie(name, value) {
     var Days = 30;
     var exp = new Date();
     exp.setTime(exp.getTime() + Days * 24 * 60 * 60 * 1000);
     document.cookie = name + "=" + escape(value) + ";expires=" + exp.toUTCString();// exp.toGMTString();
 }
-function getCookie(name) {
+export function getCookie(name) {
     var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
     if (arr = document.cookie.match(reg))
         return unescape(arr[2]);
     else return null;
 }
 
-function WJSOpenSDK_getUrl(name, url?) {
+export function WJSOpenSDK_getUrl(name, url?) {
     url = url ? url : self.window.document.location.href;
     var start = url.indexOf(name + '=');
     if (start == -1) return '';
@@ -264,7 +264,7 @@ let zhibo8TestEnvironment = false;
 let zhibo8Environment = zhibo8TestEnvironment ? 'gameh5test2019' : 'gameh5';
 
 
-let facility = (function () {
+export let facility = (function () {
     let browser = function () {
         let u = navigator.userAgent;
         return {
@@ -304,11 +304,11 @@ window.onload = function () {
 }
 
 // 客户端支付回调方法
-let zhibo8PayCallbackMethod = () => { }
+export let zhibo8PayCallbackMethod = () => { }
 
 // 客户端登陆回调方法
 
-let zhibo8LoginCallbackMethod = () => {
+export let zhibo8LoginCallbackMethod = () => {
     if (facility !== 'ios') return;
 
     document.body.append(`<div id="zLoading" class="z-loading" style=""><p><b></b>登录成功，正在获取用户信息<span>...</span></p></div>`);
@@ -357,7 +357,7 @@ let zhibo8LoginCallbackMethod = () => {
  * @constructor
  */
 
-let WJSOpenSDK_toLogin = (appid) => {
+export let WJSOpenSDK_toLogin = (appid) => {
     let paramsObj = {
         appid: appid || 27,
         redirect_url: 'https://h5nba-ly.ftxgame.com/p/main/zbb_index'
@@ -394,7 +394,7 @@ let WJSOpenSDK_toLogin = (appid) => {
  * @param callback  回调吐出token
  * @constructor
  */
-let WJSOpenSDK_userToken = (config, callback) => {
+export let WJSOpenSDK_userToken = (config, callback) => {
 
     
     axios({
@@ -446,7 +446,7 @@ var permitToDeductMoney = true;  //允许支付
  * @param callback 回调函数，扣款成功执行回调函数
  * @constructor
  */
-function WJSOpenSDK_deductMoney(config, callback) {
+export function WJSOpenSDK_deductMoney(config, callback) {
     if (!permitToDeductMoney) return;
     permitToDeductMoney = false;
     // var hasDirectPayment = (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.Zhibo8RechargeAction) || (window.zhibo8Act && window.zhibo8Act.payDialog);
@@ -588,7 +588,7 @@ function WJSOpenSDK_deductMoney(config, callback) {
  * 获取支付方式
  * 
  * */
-function getPaymentMethod(config, os) {
+export function getPaymentMethod(config, os) {
     getZhibo8Token(config.app_id, function (token) {
 
         // jsonp('https://wanjiashe.com/' + zhibo8Environment + '/applyOrderH5', {
@@ -657,7 +657,7 @@ function getPaymentMethod(config, os) {
 /**
  * 客户端选择付款方式的回调
  */
-function zhibo8PaymentMethodCallback(bool) {
+export function zhibo8PaymentMethodCallback(bool) {
     if (bool == 1) {
         zhibo8Toast({ title: '支付成功' });
     }
@@ -669,7 +669,7 @@ function zhibo8PaymentMethodCallback(bool) {
  * @param config object{token,app_id,product_id}  product_id(充值编号)
  * @constructor
  */
-function WJSOpenSDK_toPay(config) {
+export function WJSOpenSDK_toPay(config) {
     window.location.href = facility == 'ios' ? "https://www.wanjiashe.com/currency/?_platform=ios&appId=" + config.app_id : "https://www.wanjiashe.com/currency/?appId=" + config.app_id;
 }
 
@@ -687,7 +687,7 @@ let zhibo8DirectObj: any = {};
  * @param  {[type]} fn [游戏回调方法]
  * @return {[type]}        [description]
  */
-function zhibo8DirectPayment(config, fn) {
+export function zhibo8DirectPayment(config, fn) {
     zhibo8DirectObj.app_id = config.app_id;
     zhibo8DirectObj.out_trade_no = config.out_trade_no;
     zhibo8DirectObj.price = config.price;
@@ -740,7 +740,7 @@ function zhibo8DirectPayment(config, fn) {
  * @param  {Function} fn     [回调]
  * @return {[type]}          [description]
  */
-function getZhibo8PaymentParams(config, os, fn) {
+export function getZhibo8PaymentParams(config, os, fn) {
     console.log(config, os)
     getZhibo8Token(config.app_id, function (token) {
         // jsonp(facility == 'ios' ? "https://wanjiashe.com/" + zhibo8Environment + "/rechargeAndBuy?_platform=ios" : "https://wanjiashe.com/" + zhibo8Environment + "/rechargeAndBuy", {
@@ -795,7 +795,7 @@ function getZhibo8PaymentParams(config, os, fn) {
  * @param  {Function} fn    [回调函数]
  * @return {[type]}         [description]
  */
-function getZhibo8Token(appid, fn) {
+export function getZhibo8Token(appid, fn) {
     // jsonp(
     //     facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?app_id=" + appid,
     //      {})
@@ -839,7 +839,7 @@ function getZhibo8Token(appid, fn) {
  * @param  {[type]} outno [description]
  * @return {[type]}       [description]
  */
-function zhibo8DirectPaymentCallback() {
+export function zhibo8DirectPaymentCallback() {
 
     zhibo8Toast({
         zIndex: 110,  //弹窗层级
@@ -977,7 +977,7 @@ function zhibo8DirectPaymentCallback() {
  * @param  {Function} fn     [回调函数]
  * @return {[type]}          [description]
  */
-function zhibo8H5DirectToPay(config, data, fn) {
+export function zhibo8H5DirectToPay(config, data, fn) {
     permitToDeductMoney = true;
     if (data.pay_url) {
         var content = facility == 'pc' ? '\u002a\u5f53\u524d\u4ec5\u652f\u6301\u652f\u4ed8\u5b9d\u5145\u503c' : '\u002a\u5145\u503c\u5b8c\u6210\u8bf7\u5728\u6e38\u620f\u5237\u65b0\u540e\u67e5\u770b\u9053\u5177\u662f\u5426\u5230\u8d26</br>\u002a\u5f53\u524d\u4ec5\u652f\u6301\u652f\u4ed8\u5b9d\u5145\u503c'
@@ -1010,7 +1010,7 @@ function zhibo8H5DirectToPay(config, data, fn) {
     }
 }
 
-function zhibo8H5DirectToPayPopup(config, fn) {
+export function zhibo8H5DirectToPayPopup(config, fn) {
     zhibo8PcToast({
         zIndex: 110,  //弹窗层级
         width: '70%',  //弹窗默认宽度
@@ -1034,8 +1034,8 @@ let zhibo8Timer: any = undefined;
 let zhibo8ChildTimer: any = undefined;
 
 //直播吧反沉迷机制--进入游戏
-zhibo8LoginAddiction(29);
-function zhibo8LoginAddiction(appid) {
+// zhibo8LoginAddiction(29);
+export function zhibo8LoginAddiction(appid) {
     // jsonp(facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&app_id=" + appid, {})
     
     axios({
@@ -1158,7 +1158,7 @@ function zhibo8LoginAddiction(appid) {
     })
 }
 //直播吧反沉迷机制--充值
-function zhibo8BuyAddiction(appid, cb) {
+export function zhibo8BuyAddiction(appid, cb) {
     // jsonp(facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&_platform=ios&app_id=" + appid : "https://pl.zhibo8.cc/game/get_token.php?is_fcm=1&app_id=" + appid, {})
     
     axios({
@@ -1204,7 +1204,7 @@ function zhibo8BuyAddiction(appid, cb) {
     });
 }
 //防沉迷
-var antiWallow: any = {
+export let antiWallow: any = {
     init: function (persist_token, cb) {
         this.persist_token = persist_token;
         this.cb = cb;
@@ -1405,6 +1405,7 @@ var antiWallow: any = {
     }
 }
 
+// export {antiWallow, zhibo8LoginAddiction, zhibo8BuyAddiction, zhibo8H5DirectToPay, zhibo8H5DirectToPayPopup,zhibo8DirectPaymentCallback,getZhibo8Token,getZhibo8PaymentParams,zhibo8DirectPayment,WJSOpenSDK_toPay,zhibo8PaymentMethodCallback,getPaymentMethod,WJSOpenSDK_deductMoney,WJSOpenSDK_userToken,zhibo8LoginCallbackMethod}
 
 
 

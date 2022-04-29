@@ -2,6 +2,7 @@
 
 // import { browser, facility } from './browser';
 // import { getChannel } from './utils/storage';
+import { antiWallow, WJSOpenSDK_userToken } from './commponent/zhibo/popup';
 import { Popup, Toast } from './popup';
 import HttpServ from './utils/http-service';
 
@@ -32,6 +33,8 @@ class LhSdk {
   toast: any;
   access: string;
 
+  token: string;
+
   constructor() {
     // this.isMobile = browser().mobile;
     // this.facility = facility();
@@ -52,6 +55,8 @@ class LhSdk {
     // 渠道参数
     this.access = '';
     this.initEnv();
+
+    this.token = '';
   }
 
 
@@ -154,7 +159,14 @@ class LhSdk {
 
   // 实名认证
   identity() {
-    window.parent.postMessage({type:'login'})
+    // antiWallow.init(this.token);
+    // window.parent.postMessage({type:'login'})
+  }
+
+  getToken() {
+    WJSOpenSDK_userToken({ app_id: this.options.appId }, (token) => {
+      this.token = token;
+    })
   }
 }
 
