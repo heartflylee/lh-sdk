@@ -2,7 +2,7 @@
 
 // import { browser, facility } from './browser';
 // import { getChannel } from './utils/storage';
-import { antiWallow, WJSOpenSDK_userToken } from './commponent/zhibo/popup';
+import { antiWallow, WJSOpenSDK_toLogin, WJSOpenSDK_userToken } from './commponent/zhibo/popup';
 import { Popup, Toast } from './popup';
 import HttpServ from './utils/http-service';
 
@@ -42,7 +42,8 @@ class LhSdk {
       gameLogin: false, // 是否调用游戏登录
       gameLoginFnName: '', // 游戏登录方法
       gamePay: false, // 是否调用游戏支付
-      gamePayFnName: '' // 游戏支付方法
+      gamePayFnName: '', // 游戏支付方法
+      appId:''
     };
 
     this.toast = new Toast();
@@ -71,8 +72,8 @@ class LhSdk {
     const isLogin = true;
     // 已登录
     if (isLogin) {
-
-      callback && callback();
+      WJSOpenSDK_userToken({app_id:this.options.appId}, callback)
+      // callback && callback();
     } else {
 
       // 未登录
@@ -101,23 +102,25 @@ class LhSdk {
    **登录
    **/
   login = () => {
-    if (this.options.channelLogin) {
-      // 调用游戏登录方法
-      window[this.options.gameLoginFnName] && (window as any)[this.options.gameLoginFnName]();
-    } else {
-      // 跳转到登录页面
-      window.location.href = this.baseUrl + 'login?A=' + this.access;
+    // if (this.options.channelLogin) {
+    //   // 调用游戏登录方法
+    //   window[this.options.gameLoginFnName] && (window as any)[this.options.gameLoginFnName]();
+    // } else {
+    //   // 跳转到登录页面
+    //   window.location.href = this.baseUrl + 'login?A=' + this.access;
 
-      // 渠道登录页面
-      // window.location.href = this.baseUrl + 'chlogin?A=' + this.access+'&t=';
+    //   // 渠道登录页面
+    //   // window.location.href = this.baseUrl + 'chlogin?A=' + this.access+'&t=';
       
 
-      // 调用iframe父级登录方法
-      // window.parent.postMessage({type:'login'})
+    //   // 调用iframe父级登录方法
+    //   // window.parent.postMessage({type:'login'})
 
-      // 弹框登录
+    //   // 弹框登录
 
-    }
+    // }
+
+    WJSOpenSDK_toLogin(this.options.appId)
     // return new Promise()
   }
 
@@ -154,6 +157,8 @@ class LhSdk {
       // 弹框支付
 
     }
+
+    
 
   }
 

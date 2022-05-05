@@ -305,7 +305,7 @@ window.onload = function () {
 
 // 客户端支付回调方法
 export let zhibo8PayCallbackMethod = () => { }
-
+(window as any).zhibo8PayCallbackMethod = zhibo8PayCallbackMethod;
 // 客户端登陆回调方法
 
 export let zhibo8LoginCallbackMethod = () => {
@@ -969,6 +969,8 @@ export function zhibo8DirectPaymentCallback() {
     }
 }
 
+(window as any).zhibo8DirectPaymentCallback = zhibo8DirectPaymentCallback;
+
 
 /**
  * [zhibo8H5DirectToPay 调起充值]
@@ -1404,8 +1406,6 @@ export let antiWallow: any = {
 
     }
 }
-
-// export {antiWallow, zhibo8LoginAddiction, zhibo8BuyAddiction, zhibo8H5DirectToPay, zhibo8H5DirectToPayPopup,zhibo8DirectPaymentCallback,getZhibo8Token,getZhibo8PaymentParams,zhibo8DirectPayment,WJSOpenSDK_toPay,zhibo8PaymentMethodCallback,getPaymentMethod,WJSOpenSDK_deductMoney,WJSOpenSDK_userToken,zhibo8LoginCallbackMethod}
 
 
 
