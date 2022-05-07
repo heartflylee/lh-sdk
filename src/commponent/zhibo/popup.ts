@@ -547,7 +547,7 @@ export function WJSOpenSDK_deductMoney(config, callback) {
                                         switch (facility) {
                                             case 'ios':
                                                 try {
-                                                    (window as any).webkit?.messageHandlers?.Zhibo8PayAction?.postMessage(paramsObj);
+                                                    (window as any).webkit.messageHandlers.Zhibo8PayAction?.postMessage(paramsObj);
                                                 } catch (e) {
                                                     // WJSOpenSDK_toPay(config);
                                                     zhibo8Toast({ title: '充值异常' });
@@ -557,7 +557,7 @@ export function WJSOpenSDK_deductMoney(config, callback) {
                                             case 'other':
                                             default:
                                                 try {
-                                                    (window as any).zhibo8Act?.payAction(paramsStr);
+                                                    (window as any).zhibo8Act.payAction(paramsStr);
                                                 } catch (e) {
                                                     if (native_pay) {
                                                         (window as any).zhibo8Act?.act("pay", paramsStr);
@@ -664,6 +664,7 @@ export function zhibo8PaymentMethodCallback(bool) {
     }
     permitToDeductMoney = true;
 }
+(window as any).zhibo8PaymentMethodCallback = zhibo8PaymentMethodCallback;
 
 /**
  * 调起充值页面
