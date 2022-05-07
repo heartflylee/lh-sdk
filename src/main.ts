@@ -2,7 +2,7 @@
 
 // import { browser, facility } from './browser';
 // import { getChannel } from './utils/storage';
-import { antiWallow, WJSOpenSDK_toLogin, WJSOpenSDK_toPay, WJSOpenSDK_userToken, zhibo8LoginAddiction } from './commponent/zhibo/popup';
+import {  getZhibo8Token, WJSOpenSDK_toLogin, WJSOpenSDK_toPay,  zhibo8LoginAddiction } from './commponent/zhibo/popup';
 // import { Popup, Toast } from './popup';
 // import HttpServ from './utils/http-service';
 
@@ -27,7 +27,7 @@ import { antiWallow, WJSOpenSDK_toLogin, WJSOpenSDK_toPay, WJSOpenSDK_userToken,
 //   (coverSupport ? ', viewport-fit=cover' : '');
 // document.getElementsByTagName('head')[0].appendChild(viewMeta);
 
-class LhSdk {
+class PeonySdk {
   public options: any;
   baseUrl: string;
   toast: any;
@@ -97,7 +97,7 @@ class LhSdk {
     // 获取用户信息或判断token是否存在且可用
     // this.getUserInfo({callback:(data)=>{ this.userInfo = data}})
 
-    this.getToken();
+    // this.getToken();
   }
 
 
@@ -148,7 +148,7 @@ class LhSdk {
   /**
   **调起支付
   **/
-  goRecharge = (preOrder) => {
+  goToPay = () => {
     // console.log(preOrder);
     // if (this.options.channelPay) {
     //   // 调用游戏支付方法
@@ -172,11 +172,12 @@ class LhSdk {
     zhibo8LoginAddiction(this.options.appId)
   }
 
+  // 获取token
   getToken() {
-    WJSOpenSDK_userToken({ app_id: this.options.appId }, (token) => {
+    getZhibo8Token({ app_id: this.options.appId }, (token) => {
       this.token = token;
     })
   }
 }
 
-(window as any).lhsdk = LhSdk;
+(window as any).PeonySdk = PeonySdk;

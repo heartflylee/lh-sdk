@@ -4,11 +4,11 @@ module.exports = {
   entry: './src/main.ts',
   output: {
     path: path.join(__dirname, './dist'),
-    filename: 'bundle.js'
+    filename: 'peonySdk.js'
   },
   devServer: {
     hot: true,
-    filename: 'bundle.js',
+    filename: 'peonySdk.js',
     contentBase: path.join(__dirname, 'public')
   },
   module: {
