@@ -2,9 +2,9 @@
 
 // import { browser, facility } from './browser';
 // import { getChannel } from './utils/storage';
-import { antiWallow, WJSOpenSDK_toLogin, WJSOpenSDK_userToken } from './commponent/zhibo/popup';
-import { Popup, Toast } from './popup';
-import HttpServ from './utils/http-service';
+import { antiWallow, WJSOpenSDK_toLogin, WJSOpenSDK_toPay, WJSOpenSDK_userToken, zhibo8LoginAddiction } from './commponent/zhibo/popup';
+// import { Popup, Toast } from './popup';
+// import HttpServ from './utils/http-service';
 
 // import "./assets/style/button.scss";
 
@@ -34,19 +34,20 @@ class LhSdk {
   access: string;
 
   token: string;
+  userInfo: any;
 
-  constructor() {
+  constructor(options) {
     // this.isMobile = browser().mobile;
     // this.facility = facility();
-    this.options = {
+    this.options = Object.assign({
       gameLogin: false, // 是否调用游戏登录
       gameLoginFnName: '', // 游戏登录方法
       gamePay: false, // 是否调用游戏支付
       gamePayFnName: '', // 游戏支付方法
       appId:''
-    };
+    }, options);
 
-    this.toast = new Toast();
+    // this.toast = new Toast();
 
 
     // 是否为开发环境
@@ -66,21 +67,21 @@ class LhSdk {
    * @param config 
    * @param callback  回调函数 
    */
-  getUserInfo(config, callback?: Function) {
-    // 获取用户信息
+  // getUserInfo(config, callback?: Function) {
+  //   // 获取用户信息
 
-    const isLogin = true;
-    // 已登录
-    if (isLogin) {
-      WJSOpenSDK_userToken({app_id:this.options.appId}, callback)
-      // callback && callback();
-    } else {
+  //   const isLogin = true;
+  //   // 已登录
+  //   if (isLogin) {
+  //     WJSOpenSDK_userToken({app_id:this.options.appId}, callback)
+  //     // callback && callback();
+  //   } else {
 
-      // 未登录
-      this.login();
+  //     // 未登录
+  //     this.login();
 
-    }
-  }
+  //   }
+  // }
 
   /**
    **初始化环境信息
@@ -94,7 +95,9 @@ class LhSdk {
     // 根据不同游戏获取登录方法和支付方法
 
     // 获取用户信息或判断token是否存在且可用
-    this.getUserInfo({})
+    // this.getUserInfo({callback:(data)=>{ this.userInfo = data}})
+
+    this.getToken();
   }
 
 
@@ -127,38 +130,38 @@ class LhSdk {
   /**
   **上报角色信息
   **/
-  reportRoleInfo = (roleInfo) => {
-    console.log(roleInfo);
-    // 上报角色信息，调用接口
-    HttpServ.request({
-      url: '/reportRoleInfo',
-      method: 'post',
-      data: { roleInfo }
-    }).then(() => {
-      this.toast.success('上报成功');
-    }).catch(() => {
-      this.toast.error('接口报错');
-    })
+  // reportRoleInfo = (roleInfo) => {
+  //   console.log(roleInfo);
+  //   // 上报角色信息，调用接口
+  //   HttpServ.request({
+  //     url: '/reportRoleInfo',
+  //     method: 'post',
+  //     data: { roleInfo }
+  //   }).then(() => {
+  //     this.toast.success('上报成功');
+  //   }).catch(() => {
+  //     this.toast.error('接口报错');
+  //   })
 
-  }
+  // }
 
   /**
   **调起支付
   **/
   goRecharge = (preOrder) => {
-    console.log(preOrder);
-    if (this.options.channelPay) {
-      // 调用游戏支付方法
-      window[this.options.gamePayFnName] && (window as any)[this.options.gamePayFnName]();
-    } else {
-      // 调用iframe父级支付方法
-      window.parent.postMessage({ type: 'pay', orderId: preOrder })
+    // console.log(preOrder);
+    // if (this.options.channelPay) {
+    //   // 调用游戏支付方法
+    //   window[this.options.gamePayFnName] && (window as any)[this.options.gamePayFnName]();
+    // } else {
+    //   // 调用iframe父级支付方法
+    //   window.parent.postMessage({ type: 'pay', orderId: preOrder })
 
-      // 弹框支付
+    //   // 弹框支付
 
-    }
+    // }
 
-    
+    WJSOpenSDK_toPay({ app_id: this.options.appId })
 
   }
 
@@ -166,6 +169,7 @@ class LhSdk {
   identity() {
     // antiWallow.init(this.token);
     // window.parent.postMessage({type:'login'})
+    zhibo8LoginAddiction(this.options.appId)
   }
 
   getToken() {
@@ -175,4 +179,4 @@ class LhSdk {
   }
 }
 
-(window as any).lhsdk = new LhSdk();
+(window as any).lhsdk = new LhSdk({});

@@ -350,6 +350,7 @@ export let zhibo8LoginCallbackMethod = () => {
         }
     }, 1000)
 }
+( window as any).zhibo8LoginCallbackMethod = zhibo8LoginCallbackMethod;
 
 
 /**
@@ -366,7 +367,7 @@ export let WJSOpenSDK_toLogin = (appid) => {
 
     let paramsStr = JSON.stringify(paramsObj);
     try {
-        (window as any).webkit?.messageHandlers?.Zhibo8LoginAction?.postMessage(paramsObj);
+        (window as any).webkit.messageHandlers?.Zhibo8LoginAction?.postMessage(paramsObj);
     } catch (e) {
         try {
             (window as any).zhibo8Act.login(paramsStr);
@@ -396,7 +397,7 @@ export let WJSOpenSDK_toLogin = (appid) => {
  */
 export let WJSOpenSDK_userToken = (config, callback) => {
 
-    
+
     axios({
         url: facility == 'ios' ? "https://pl.zhibo8.cc/game/get_token.php?_platform=ios&app_id=" + config.app_id : "https://pl.zhibo8.cc/game/get_token.php?app_id=" + config.app_id,
         adapter: jsonpAdapter,
