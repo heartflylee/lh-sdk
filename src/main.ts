@@ -179,4 +179,4 @@ class LhSdk {
   }
 }
 
-(window as any).lhsdk = new LhSdk({});
+(window as any).lhsdk = LhSdk;
