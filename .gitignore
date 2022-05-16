@@ -1,6 +1,6 @@
 .DS_Store
 /node_modules
-/dist
+# /dist
 # 构建分析输出文件
 compilation-stats.json
 output.js
